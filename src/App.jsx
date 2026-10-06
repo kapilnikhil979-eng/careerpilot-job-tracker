@@ -12,9 +12,7 @@ import Settings from "./pages/Settings.jsx";
 
 import Login from "./pages/Login.jsx";
 import Signup from "./pages/Signup.jsx";
-
-const API_URL = "http://localhost:5000/api/jobs";
-
+const API_URL = "https://careerpilot-backend-3yo2.onrender.com/api/jobs";
 function App() {
   // =========================
   // AUTHENTICATION
