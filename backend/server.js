@@ -5,7 +5,7 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 
-const Job = require("./models/Job");
+const Job = require("./models/job");
 const authRoutes = require("./controlllers/routes/authRoutes");
 const authMiddleware = require("./middleware/authMiddleware");
 
