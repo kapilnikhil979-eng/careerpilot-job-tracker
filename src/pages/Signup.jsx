@@ -19,7 +19,7 @@ function Signup({ onSignup }) {
 
     try {
       const response = await fetch(
-        "http://localhost:5000/api/auth/register",
+        "https://careerpilot-backend-3yo2.onrender.com/api/auth/register",
         {
           method: "POST",
           headers: {
@@ -50,12 +50,11 @@ function Signup({ onSignup }) {
       setTimeout(() => {
         onSignup();
       }, 1000);
-
     } catch (error) {
       console.error("SIGNUP ERROR:", error);
 
       setError(
-        "Unable to connect to server. Make sure backend is running."
+        "Unable to connect to server. Please try again."
       );
     } finally {
       setLoading(false);
@@ -74,12 +73,14 @@ function Signup({ onSignup }) {
           Create your Job Tracker account
         </p>
 
+        {/* ERROR MESSAGE */}
         {error && (
           <div className="mb-4 rounded-lg bg-red-100 border border-red-300 text-red-700 px-4 py-3">
             {error}
           </div>
         )}
 
+        {/* SUCCESS MESSAGE */}
         {message && (
           <div className="mb-4 rounded-lg bg-green-100 border border-green-300 text-green-700 px-4 py-3">
             {message}
@@ -89,7 +90,6 @@ function Signup({ onSignup }) {
         <form onSubmit={handleSignup} className="space-y-5">
 
           {/* NAME */}
-
           <div>
             <label className="block mb-1 font-medium">
               Name
@@ -106,7 +106,6 @@ function Signup({ onSignup }) {
           </div>
 
           {/* EMAIL */}
-
           <div>
             <label className="block mb-1 font-medium">
               Email
@@ -123,7 +122,6 @@ function Signup({ onSignup }) {
           </div>
 
           {/* PASSWORD */}
-
           <div>
             <label className="block mb-1 font-medium">
               Password
@@ -141,7 +139,6 @@ function Signup({ onSignup }) {
           </div>
 
           {/* SIGNUP BUTTON */}
-
           <button
             type="submit"
             disabled={loading}
@@ -149,10 +146,10 @@ function Signup({ onSignup }) {
           >
             {loading ? "Creating Account..." : "Sign Up"}
           </button>
+
         </form>
 
         {/* BACK TO LOGIN */}
-
         <div className="text-center mt-6">
           <p className="text-gray-600">
             Already have an account?
