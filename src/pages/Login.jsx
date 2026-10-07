@@ -15,7 +15,7 @@ function Login({ onLogin, onSignup }) {
 
     try {
       const response = await fetch(
-        "http://localhost:5000/api/auth/login",
+        "https://careerpilot-backend-3yo2.onrender.com/api/auth/login",
         {
           method: "POST",
           headers: {
@@ -36,12 +36,12 @@ function Login({ onLogin, onSignup }) {
       }
 
       // Save token and open dashboard
-     onLogin(data.token, data.user);
+      onLogin(data.token, data.user);
     } catch (error) {
       console.error("LOGIN ERROR:", error);
 
       setError(
-        "Unable to connect to server. Make sure backend is running."
+        "Unable to connect to server. Please try again."
       );
     } finally {
       setLoading(false);
@@ -69,7 +69,6 @@ function Login({ onLogin, onSignup }) {
         <form onSubmit={handleLogin} className="space-y-5">
 
           {/* EMAIL */}
-
           <div>
             <label className="block mb-1 font-medium">
               Email
@@ -86,7 +85,6 @@ function Login({ onLogin, onSignup }) {
           </div>
 
           {/* PASSWORD */}
-
           <div>
             <label className="block mb-1 font-medium">
               Password
@@ -103,7 +101,6 @@ function Login({ onLogin, onSignup }) {
           </div>
 
           {/* LOGIN BUTTON */}
-
           <button
             type="submit"
             disabled={loading}
@@ -111,10 +108,10 @@ function Login({ onLogin, onSignup }) {
           >
             {loading ? "Logging in..." : "Login"}
           </button>
+
         </form>
 
         {/* SIGNUP */}
-
         <div className="text-center mt-6">
           <p className="text-gray-600">
             Don't have an account?
