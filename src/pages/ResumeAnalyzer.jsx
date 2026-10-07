@@ -1,4 +1,5 @@
 import { useState } from "react";
+import AIJobAnalyzer from "../components/AIJobAnalyzer.jsx";
 
 function ResumeAnalyzer({ darkMode }) {
   // =========================
@@ -94,7 +95,7 @@ function ResumeAnalyzer({ darkMode }) {
     setError("");
     setLoading(true);
 
-    // Simulate analysis
+    // Current resume analysis simulation
     setTimeout(() => {
       const calculatedScore = 78;
 
@@ -121,10 +122,12 @@ function ResumeAnalyzer({ darkMode }) {
       // Save analysis
       localStorage.setItem("resumeAnalyzed", "true");
       localStorage.setItem("resumeScore", calculatedScore);
+
       localStorage.setItem(
         "resumeSkills",
         JSON.stringify(detectedSkills)
       );
+
       localStorage.setItem("resumeProjects", detectedProjects);
     }, 1200);
   }
@@ -191,11 +194,17 @@ function ResumeAnalyzer({ darkMode }) {
       </div>
 
       {/* =========================
+          AI JOB ANALYZER
+      ========================= */}
+
+      <AIJobAnalyzer darkMode={darkMode} />
+
+      {/* =========================
           UPLOAD SECTION
       ========================= */}
 
       <div
-        className={`rounded-xl p-6 shadow-sm ${
+        className={`mt-6 rounded-xl p-6 shadow-sm ${
           darkMode ? "bg-gray-800" : "bg-white"
         }`}
       >
@@ -266,9 +275,7 @@ function ResumeAnalyzer({ darkMode }) {
                   <div className="text-left">
                     <p
                       className={`text-sm font-semibold ${
-                        darkMode
-                          ? "text-white"
-                          : "text-gray-800"
+                        darkMode ? "text-white" : "text-gray-800"
                       }`}
                     >
                       {fileName}
@@ -529,6 +536,8 @@ function ResumeAnalyzer({ darkMode }) {
               </h3>
 
               <div className="mt-4 space-y-3">
+                {/* CareerPilot */}
+
                 <div
                   className={`rounded-lg p-4 ${
                     darkMode
@@ -558,6 +567,8 @@ function ResumeAnalyzer({ darkMode }) {
                   </p>
                 </div>
 
+                {/* Job Tracker */}
+
                 <div
                   className={`rounded-lg p-4 ${
                     darkMode
@@ -586,6 +597,8 @@ function ResumeAnalyzer({ darkMode }) {
                     filters and status management.
                   </p>
                 </div>
+
+                {/* Portfolio */}
 
                 <div
                   className={`rounded-lg p-4 ${
@@ -641,6 +654,8 @@ function ResumeAnalyzer({ darkMode }) {
               </h3>
 
               <div className="mt-4 space-y-3">
+                {/* Suggestion 1 */}
+
                 <div
                   className={`rounded-lg p-4 ${
                     darkMode
@@ -664,6 +679,8 @@ function ResumeAnalyzer({ darkMode }) {
                   </p>
                 </div>
 
+                {/* Suggestion 2 */}
+
                 <div
                   className={`rounded-lg p-4 ${
                     darkMode
@@ -686,6 +703,8 @@ function ResumeAnalyzer({ darkMode }) {
                     you used and what problem you solved.
                   </p>
                 </div>
+
+                {/* Suggestion 3 */}
 
                 <div
                   className={`rounded-lg p-4 ${
