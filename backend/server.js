@@ -7,7 +7,13 @@ const dotenv = require("dotenv");
 const { GoogleGenAI } = require("@google/genai");
 
 const Job = require("./models/job");
+
+// Existing auth route
 const authRoutes = require("./controlllers/routes/authRoutes");
+
+// NEW: Resume route
+const resumeRoutes = require("./controlllers/routes/resumeRoutes");
+
 const authMiddleware = require("./middleware/authMiddleware");
 
 dotenv.config();
@@ -47,6 +53,12 @@ app.get("/", (req, res) => {
 // ======================================================
 
 app.use("/api/auth", authRoutes);
+
+// ======================================================
+// RESUME ROUTES
+// ======================================================
+
+app.use("/api/resume", resumeRoutes);
 
 // ======================================================
 // AI JOB ANALYZER
