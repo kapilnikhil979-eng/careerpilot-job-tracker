@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import AIJobAnalyzer from "../components/AIJobAnalyzer.jsx";
 
 const API_URL =
-  "http://localhost:5000/api/auth/resume";
+  "https://careerpilot-backend-3yo2.onrender.com/api/auth/resume";
+
 function ResumeAnalyzer({ darkMode }) {
   // =========================
   // RESUME STATE
@@ -10,6 +11,7 @@ function ResumeAnalyzer({ darkMode }) {
 
   const [file, setFile] = useState(null);
   const [fileName, setFileName] = useState("");
+
   const [analyzed, setAnalyzed] = useState(false);
   const [loading, setLoading] = useState(false);
   const [pageLoading, setPageLoading] = useState(true);
@@ -24,7 +26,7 @@ function ResumeAnalyzer({ darkMode }) {
   const [skills, setSkills] = useState([]);
 
   // =========================
-  // LOAD USER RESUME
+  // LOAD CURRENT USER RESUME
   // =========================
 
   useEffect(() => {
@@ -70,7 +72,7 @@ function ResumeAnalyzer({ darkMode }) {
   }, []);
 
   // =========================
-  // HANDLE FILE CHANGE
+  // SELECT RESUME
   // =========================
 
   function handleFileChange(e) {
@@ -82,13 +84,11 @@ function ResumeAnalyzer({ darkMode }) {
       return;
     }
 
-    // Check PDF
     if (selectedFile.type !== "application/pdf") {
       setError("Please upload a PDF resume only.");
       return;
     }
 
-    // Maximum 5MB
     if (selectedFile.size > 5 * 1024 * 1024) {
       setError("Resume file size must be less than 5MB.");
       return;
@@ -96,6 +96,7 @@ function ResumeAnalyzer({ darkMode }) {
 
     setFile(selectedFile);
     setFileName(selectedFile.name);
+
     setAnalyzed(false);
     setScore(0);
     setSkills([]);
@@ -103,7 +104,7 @@ function ResumeAnalyzer({ darkMode }) {
   }
 
   // =========================
-  // SAVE RESUME DATA
+  // SAVE RESUME TO MONGODB
   // =========================
 
   async function saveResumeData(resumeData) {
@@ -145,7 +146,8 @@ function ResumeAnalyzer({ darkMode }) {
       setError("");
       setLoading(true);
 
-      // Current resume analysis simulation
+      // Current resume analysis
+      // Replace this later with real PDF parsing if needed.
       await new Promise((resolve) => setTimeout(resolve, 1200));
 
       const calculatedScore = 78;
@@ -163,13 +165,12 @@ function ResumeAnalyzer({ darkMode }) {
 
       const detectedProjects = 3;
 
-      // Update UI
       setScore(calculatedScore);
       setSkills(detectedSkills);
       setProjects(detectedProjects);
       setAnalyzed(true);
 
-      // Save to MongoDB for logged-in user
+      // Save for the currently logged-in user
       await saveResumeData({
         resumeFileName: fileName,
         resumeSkills: detectedSkills,
@@ -246,7 +247,7 @@ function ResumeAnalyzer({ darkMode }) {
   }
 
   // =========================
-  // PAGE LOADING
+  // LOADING
   // =========================
 
   if (pageLoading) {
@@ -263,11 +264,13 @@ function ResumeAnalyzer({ darkMode }) {
     );
   }
 
+  // =========================
+  // UI
+  // =========================
+
   return (
     <div>
-      {/* =========================
-          PAGE HEADER
-      ========================= */}
+      {/* HEADER */}
 
       <div className="mb-6">
         <h2
@@ -287,15 +290,11 @@ function ResumeAnalyzer({ darkMode }) {
         </p>
       </div>
 
-      {/* =========================
-          AI JOB ANALYZER
-      ========================= */}
+      {/* AI JOB ANALYZER */}
 
       <AIJobAnalyzer darkMode={darkMode} />
 
-      {/* =========================
-          UPLOAD SECTION
-      ========================= */}
+      {/* RESUME UPLOAD */}
 
       <div
         className={`mt-6 rounded-xl p-6 shadow-sm ${
@@ -403,11 +402,13 @@ function ResumeAnalyzer({ darkMode }) {
                       : "bg-green-600 hover:bg-green-700"
                   }`}
                 >
-                  {loading ? "Analyzing Resume..." : "Analyze Resume"}
+                  {loading
+                    ? "Analyzing Resume..."
+                    : "Analyze Resume"}
                 </button>
               )}
 
-              {/* SAVED STATUS */}
+              {/* SUCCESS */}
 
               {analyzed && (
                 <p className="mt-3 text-sm font-medium text-green-600">
@@ -419,9 +420,7 @@ function ResumeAnalyzer({ darkMode }) {
         </div>
       </div>
 
-      {/* =========================
-          ANALYSIS
-      ========================= */}
+      {/* ANALYSIS RESULTS */}
 
       {analyzed && (
         <div className="mt-6 space-y-6">
@@ -436,7 +435,7 @@ function ResumeAnalyzer({ darkMode }) {
               {/* SCORE */}
 
               <div
-                className={`rounded-xl p-5 lg:col-span-1 ${
+                className={`rounded-xl p-5 ${
                   darkMode ? "bg-gray-700" : "bg-blue-50"
                 }`}
               >
@@ -444,7 +443,9 @@ function ResumeAnalyzer({ darkMode }) {
                   <div>
                     <p
                       className={`text-sm ${
-                        darkMode ? "text-gray-400" : "text-gray-500"
+                        darkMode
+                          ? "text-gray-400"
+                          : "text-gray-500"
                       }`}
                     >
                       Resume Score
@@ -470,7 +471,7 @@ function ResumeAnalyzer({ darkMode }) {
                   <div
                     className="h-full rounded-full bg-blue-600 transition-all duration-700"
                     style={{ width: `${score}%` }}
-                  ></div>
+                  />
                 </div>
               </div>
 
@@ -478,12 +479,16 @@ function ResumeAnalyzer({ darkMode }) {
 
               <div
                 className={`rounded-xl p-5 ${
-                  darkMode ? "bg-blue-900/30" : "bg-blue-50"
+                  darkMode
+                    ? "bg-blue-900/30"
+                    : "bg-blue-50"
                 }`}
               >
                 <p
                   className={`text-sm ${
-                    darkMode ? "text-gray-400" : "text-gray-500"
+                    darkMode
+                      ? "text-gray-400"
+                      : "text-gray-500"
                   }`}
                 >
                   Resume Status
@@ -498,12 +503,16 @@ function ResumeAnalyzer({ darkMode }) {
 
               <div
                 className={`rounded-xl p-5 ${
-                  darkMode ? "bg-green-900/30" : "bg-green-50"
+                  darkMode
+                    ? "bg-green-900/30"
+                    : "bg-green-50"
                 }`}
               >
                 <p
                   className={`text-sm ${
-                    darkMode ? "text-gray-400" : "text-gray-500"
+                    darkMode
+                      ? "text-gray-400"
+                      : "text-gray-500"
                   }`}
                 >
                   Projects
@@ -515,7 +524,9 @@ function ResumeAnalyzer({ darkMode }) {
 
                 <p
                   className={`mt-1 text-xs ${
-                    darkMode ? "text-gray-400" : "text-gray-500"
+                    darkMode
+                      ? "text-gray-400"
+                      : "text-gray-500"
                   }`}
                 >
                   Projects detected
@@ -526,12 +537,16 @@ function ResumeAnalyzer({ darkMode }) {
 
               <div
                 className={`rounded-xl p-5 ${
-                  darkMode ? "bg-purple-900/30" : "bg-purple-50"
+                  darkMode
+                    ? "bg-purple-900/30"
+                    : "bg-purple-50"
                 }`}
               >
                 <p
                   className={`text-sm ${
-                    darkMode ? "text-gray-400" : "text-gray-500"
+                    darkMode
+                      ? "text-gray-400"
+                      : "text-gray-500"
                   }`}
                 >
                   Skills
@@ -543,7 +558,9 @@ function ResumeAnalyzer({ darkMode }) {
 
                 <p
                   className={`mt-1 text-xs ${
-                    darkMode ? "text-gray-400" : "text-gray-500"
+                    darkMode
+                      ? "text-gray-400"
+                      : "text-gray-500"
                   }`}
                 >
                   Skills detected
@@ -602,8 +619,6 @@ function ResumeAnalyzer({ darkMode }) {
               </h3>
 
               <div className="mt-4 space-y-3">
-                {/* CareerPilot */}
-
                 <div
                   className={`rounded-lg p-4 ${
                     darkMode ? "bg-gray-700" : "bg-gray-50"
@@ -611,7 +626,9 @@ function ResumeAnalyzer({ darkMode }) {
                 >
                   <p
                     className={`font-semibold ${
-                      darkMode ? "text-white" : "text-gray-900"
+                      darkMode
+                        ? "text-white"
+                        : "text-gray-900"
                     }`}
                   >
                     CareerPilot
@@ -619,15 +636,15 @@ function ResumeAnalyzer({ darkMode }) {
 
                   <p
                     className={`mt-1 text-sm ${
-                      darkMode ? "text-gray-400" : "text-gray-600"
+                      darkMode
+                        ? "text-gray-400"
+                        : "text-gray-600"
                     }`}
                   >
-                    Full Stack career management application using React,
-                    Node.js, Express and MongoDB.
+                    Full Stack career management application
+                    using React, Node.js, Express and MongoDB.
                   </p>
                 </div>
-
-                {/* Job Tracker */}
 
                 <div
                   className={`rounded-lg p-4 ${
@@ -636,7 +653,9 @@ function ResumeAnalyzer({ darkMode }) {
                 >
                   <p
                     className={`font-semibold ${
-                      darkMode ? "text-white" : "text-gray-900"
+                      darkMode
+                        ? "text-white"
+                        : "text-gray-900"
                     }`}
                   >
                     Job Tracker
@@ -644,15 +663,15 @@ function ResumeAnalyzer({ darkMode }) {
 
                   <p
                     className={`mt-1 text-sm ${
-                      darkMode ? "text-gray-400" : "text-gray-600"
+                      darkMode
+                        ? "text-gray-400"
+                        : "text-gray-600"
                     }`}
                   >
-                    Job application tracking with search, filters and status
-                    management.
+                    Job application tracking with search,
+                    filters and status management.
                   </p>
                 </div>
-
-                {/* Portfolio */}
 
                 <div
                   className={`rounded-lg p-4 ${
@@ -661,7 +680,9 @@ function ResumeAnalyzer({ darkMode }) {
                 >
                   <p
                     className={`font-semibold ${
-                      darkMode ? "text-white" : "text-gray-900"
+                      darkMode
+                        ? "text-white"
+                        : "text-gray-900"
                     }`}
                   >
                     Portfolio Website
@@ -669,7 +690,9 @@ function ResumeAnalyzer({ darkMode }) {
 
                   <p
                     className={`mt-1 text-sm ${
-                      darkMode ? "text-gray-400" : "text-gray-600"
+                      darkMode
+                        ? "text-gray-400"
+                        : "text-gray-600"
                     }`}
                   >
                     Responsive developer portfolio website.
@@ -682,7 +705,7 @@ function ResumeAnalyzer({ darkMode }) {
           {/* IMPROVEMENT + JOB READINESS */}
 
           <div className="grid gap-6 lg:grid-cols-2">
-            {/* SUGGESTIONS */}
+            {/* IMPROVEMENT */}
 
             <div
               className={`rounded-xl p-6 shadow-sm ${
@@ -698,11 +721,11 @@ function ResumeAnalyzer({ darkMode }) {
               </h3>
 
               <div className="mt-4 space-y-3">
-                {/* Suggestion 1 */}
-
                 <div
                   className={`rounded-lg p-4 ${
-                    darkMode ? "bg-yellow-900/30" : "bg-yellow-50"
+                    darkMode
+                      ? "bg-yellow-900/30"
+                      : "bg-yellow-50"
                   }`}
                 >
                   <p className="font-medium text-yellow-700">
@@ -711,19 +734,21 @@ function ResumeAnalyzer({ darkMode }) {
 
                   <p
                     className={`mt-1 text-sm ${
-                      darkMode ? "text-gray-400" : "text-gray-600"
+                      darkMode
+                        ? "text-gray-400"
+                        : "text-gray-600"
                     }`}
                   >
-                    Add numbers and measurable results to your project and
-                    experience descriptions.
+                    Add numbers and measurable results to
+                    your project and experience descriptions.
                   </p>
                 </div>
 
-                {/* Suggestion 2 */}
-
                 <div
                   className={`rounded-lg p-4 ${
-                    darkMode ? "bg-blue-900/30" : "bg-blue-50"
+                    darkMode
+                      ? "bg-blue-900/30"
+                      : "bg-blue-50"
                   }`}
                 >
                   <p className="font-medium text-blue-700">
@@ -732,19 +757,21 @@ function ResumeAnalyzer({ darkMode }) {
 
                   <p
                     className={`mt-1 text-sm ${
-                      darkMode ? "text-gray-400" : "text-gray-600"
+                      darkMode
+                        ? "text-gray-400"
+                        : "text-gray-600"
                     }`}
                   >
-                    Explain what you built, which technologies you used and
-                    what problem you solved.
+                    Explain what you built, which technologies
+                    you used and what problem you solved.
                   </p>
                 </div>
 
-                {/* Suggestion 3 */}
-
                 <div
                   className={`rounded-lg p-4 ${
-                    darkMode ? "bg-green-900/30" : "bg-green-50"
+                    darkMode
+                      ? "bg-green-900/30"
+                      : "bg-green-50"
                   }`}
                 >
                   <p className="font-medium text-green-700">
@@ -753,11 +780,13 @@ function ResumeAnalyzer({ darkMode }) {
 
                   <p
                     className={`mt-1 text-sm ${
-                      darkMode ? "text-gray-400" : "text-gray-600"
+                      darkMode
+                        ? "text-gray-400"
+                        : "text-gray-600"
                     }`}
                   >
-                    Focus your resume on skills that match the jobs you are
-                    targeting.
+                    Focus your resume on skills that match
+                    the jobs you are targeting.
                   </p>
                 </div>
               </div>
@@ -780,19 +809,24 @@ function ResumeAnalyzer({ darkMode }) {
 
               <p
                 className={`mt-3 text-sm leading-6 ${
-                  darkMode ? "text-gray-400" : "text-gray-600"
+                  darkMode
+                    ? "text-gray-400"
+                    : "text-gray-600"
                 }`}
               >
-                Your resume has a solid foundation for entry-level Full Stack
-                Developer applications. Continue improving projects, DSA and
-                interview preparation.
+                Your resume has a solid foundation for
+                entry-level Full Stack Developer applications.
+                Continue improving projects, DSA and interview
+                preparation.
               </p>
 
               <div className="mt-5">
                 <div className="flex items-center justify-between">
                   <span
                     className={`text-sm ${
-                      darkMode ? "text-gray-400" : "text-gray-500"
+                      darkMode
+                        ? "text-gray-400"
+                        : "text-gray-500"
                     }`}
                   >
                     Readiness
@@ -805,13 +839,15 @@ function ResumeAnalyzer({ darkMode }) {
 
                 <div
                   className={`mt-3 h-2.5 overflow-hidden rounded-full ${
-                    darkMode ? "bg-gray-700" : "bg-gray-200"
+                    darkMode
+                      ? "bg-gray-700"
+                      : "bg-gray-200"
                   }`}
                 >
                   <div
                     className="h-full rounded-full bg-green-500 transition-all duration-700"
                     style={{ width: "75%" }}
-                  ></div>
+                  />
                 </div>
               </div>
             </div>
