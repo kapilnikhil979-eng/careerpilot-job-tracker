@@ -306,9 +306,10 @@ for (const model of models) {
         ],
 
         config: {
-          temperature: 0.2,
-          maxOutputTokens: 1200,
-        },
+  temperature: 0.2,
+  maxOutputTokens: 1200,
+  responseMimeType: "application/json",
+},
       });
 
       console.log(`✅ Gemini success using ${model}`);
