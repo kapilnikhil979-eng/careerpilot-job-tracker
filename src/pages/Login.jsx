@@ -14,9 +14,8 @@ function Login({ onLogin, onSignup }) {
     setLoading(true);
 
     try {
-      // Local backend
       const response = await fetch(
-        "http://localhost:5000/api/auth/login",
+        "https://careerpilot-backend-3yo2.onrender.com/api/auth/login",
         {
           method: "POST",
           headers: {
@@ -42,7 +41,7 @@ function Login({ onLogin, onSignup }) {
       console.error("LOGIN ERROR:", error);
 
       setError(
-        "Unable to connect to server. Please make sure the backend is running."
+        "Unable to connect to server. Please try again."
       );
     } finally {
       setLoading(false);
@@ -53,7 +52,6 @@ function Login({ onLogin, onSignup }) {
     <div className="flex min-h-screen items-center justify-center bg-gray-100">
       <div className="w-full max-w-md rounded-xl bg-white p-8 shadow-lg">
         {/* TITLE */}
-
         <h1 className="mb-2 text-center text-3xl font-bold">
           Job Tracker Login
         </h1>
@@ -63,7 +61,6 @@ function Login({ onLogin, onSignup }) {
         </p>
 
         {/* ERROR */}
-
         {error && (
           <div className="mb-4 rounded-lg border border-red-300 bg-red-100 px-4 py-3 text-red-700">
             {error}
@@ -71,10 +68,8 @@ function Login({ onLogin, onSignup }) {
         )}
 
         {/* LOGIN FORM */}
-
         <form onSubmit={handleLogin} className="space-y-5">
           {/* EMAIL */}
-
           <div>
             <label className="mb-1 block font-medium">
               Email
@@ -91,7 +86,6 @@ function Login({ onLogin, onSignup }) {
           </div>
 
           {/* PASSWORD */}
-
           <div>
             <label className="mb-1 block font-medium">
               Password
@@ -108,7 +102,6 @@ function Login({ onLogin, onSignup }) {
           </div>
 
           {/* LOGIN BUTTON */}
-
           <button
             type="submit"
             disabled={loading}
@@ -119,7 +112,6 @@ function Login({ onLogin, onSignup }) {
         </form>
 
         {/* SIGNUP */}
-
         <div className="mt-6 text-center">
           <p className="text-gray-600">
             Don't have an account?
