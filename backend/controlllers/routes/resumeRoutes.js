@@ -274,28 +274,80 @@ IMPORTANT:
       console.log("");
       console.log("🤖 Sending PDF directly to Gemini...");
 
-      const response =
-        await ai.models.generateContent({
-          model: "gemini-3.5-flash-lite",
+      let response;
+let lastError;
 
-          contents: [
-            {
-              text: prompt,
-            },
+const models = [
+  "gemini-3.5-flash-lite",
+  "gemini-3.6-flash",
+];
 
-            {
-              inlineData: {
-                mimeType: "application/pdf",
-                data: pdfBase64,
-              },
-            },
-          ],
+for (const model of models) {
+  for (let attempt = 1; attempt <= 2; attempt++) {
+    try {
+      console.log(
+        `🤖 Trying Gemini model: ${model} | Attempt: ${attempt}`
+      );
 
-          config: {
-            temperature: 0.2,
-            maxOutputTokens: 1200,
+      response = await ai.models.generateContent({
+        model,
+
+        contents: [
+          {
+            text: prompt,
           },
-        });
+
+          {
+            inlineData: {
+              mimeType: "application/pdf",
+              data: pdfBase64,
+            },
+          },
+        ],
+
+        config: {
+          temperature: 0.2,
+          maxOutputTokens: 1200,
+        },
+      });
+
+      console.log(`✅ Gemini success using ${model}`);
+
+      break;
+    } catch (error) {
+      lastError = error;
+
+      const status = error?.status ?? error?.error?.code;
+
+      console.error(
+        `❌ Gemini error using ${model}, attempt ${attempt}:`,
+        error?.message || error
+      );
+
+      // Only retry/fallback for temporary Gemini server overload
+      if (status !== 503) {
+        throw error;
+      }
+
+      if (attempt < 2) {
+        console.log("⏳ Gemini temporarily busy. Retrying in 2 seconds...");
+
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+      }
+    }
+  }
+
+  // If successful, don't try another model
+  if (response) {
+    break;
+  }
+
+  console.log(`⚠️ ${model} unavailable. Trying next model...`);
+}
+
+if (!response) {
+  throw lastError || new Error("Gemini analysis failed.");
+}
 
       // ==================================================
       // GEMINI RESPONSE
