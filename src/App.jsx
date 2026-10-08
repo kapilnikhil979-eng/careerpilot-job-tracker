@@ -673,7 +673,7 @@ function App() {
           MAIN CONTENT
       ========================= */}
 
-      <main className="ml-0 w-full min-w-0 max-w-full overflow-x-hidden p-4 sm:p-6 md:ml-64 md:p-8">
+      <main className="ml-0 min-w-0 max-w-full overflow-x-hidden p-4 sm:p-6 md:ml-64 md:w-[calc(100%-16rem)] md:p-8">
 
         {/* =========================
             MOBILE TOP BAR

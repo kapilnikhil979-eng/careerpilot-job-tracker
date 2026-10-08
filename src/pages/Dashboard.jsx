@@ -28,15 +28,13 @@ function Dashboard({
   ).length;
 
   return (
-    <div className="w-full min-w-0">
-
+    <div className="w-full min-w-0 max-w-full overflow-x-hidden">
       {/* =========================
-          PAGE HEADER
+          DASHBOARD HEADER
       ========================= */}
 
       <div className="mb-5 sm:mb-8">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-
           <div className="min-w-0">
             <p
               className={`mb-1 text-xs font-medium sm:text-sm ${
@@ -55,7 +53,7 @@ function Dashboard({
             </h2>
 
             <p
-              className={`mt-1 max-w-xl text-xs sm:text-sm sm:text-base ${
+              className={`mt-1 max-w-xl text-xs sm:text-sm ${
                 darkMode ? "text-gray-400" : "text-gray-500"
               }`}
             >
@@ -64,6 +62,7 @@ function Dashboard({
           </div>
 
           {/* Add Job Button */}
+
           <button
             type="button"
             onClick={handleAddJob}
@@ -75,59 +74,60 @@ function Dashboard({
       </div>
 
       {/* =========================
-          STATISTICS
+          STAT CARDS
       ========================= */}
 
-      <div
-        className="
-          mb-5
-          grid
-          grid-cols-1
-          gap-3
-          sm:grid-cols-2
-          sm:gap-4
-          lg:mb-8
-          lg:grid-cols-4
-          lg:gap-6
-        "
-      >
-        <StatCard
-          title="Total Applications"
-          value={totalApplications}
-          icon="💼"
-          darkMode={darkMode}
-        />
+      <div className="mb-5 grid w-full min-w-0 max-w-full grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:mb-8 lg:grid-cols-4 lg:gap-6">
+        {/* Total Applications */}
 
-        <StatCard
-          title="Interviews"
-          value={interviews}
-          icon="🎤"
-          darkMode={darkMode}
-        />
+        <div className="min-w-0 w-full">
+          <StatCard
+            title="Total Applications"
+            value={totalApplications}
+            icon="💼"
+            darkMode={darkMode}
+          />
+        </div>
 
-        <StatCard
-          title="Selected"
-          value={selected}
-          icon="🎯"
-          darkMode={darkMode}
-        />
+        {/* Interviews */}
 
-        <StatCard
-          title="Rejected"
-          value={rejected}
-          icon="❌"
-          darkMode={darkMode}
-        />
+        <div className="min-w-0 w-full">
+          <StatCard
+            title="Interviews"
+            value={interviews}
+            icon="🎤"
+            darkMode={darkMode}
+          />
+        </div>
+
+        {/* Selected */}
+
+        <div className="min-w-0 w-full">
+          <StatCard
+            title="Selected"
+            value={selected}
+            icon="🎯"
+            darkMode={darkMode}
+          />
+        </div>
+
+        {/* Rejected */}
+
+        <div className="min-w-0 w-full">
+          <StatCard
+            title="Rejected"
+            value={rejected}
+            icon="❌"
+            darkMode={darkMode}
+          />
+        </div>
       </div>
 
       {/* =========================
-          APPLICATIONS
-          
-          Header is handled inside
-          JobTable.jsx
+          JOB TABLE
       ========================= */}
 
-      <div className="min-w-0">
+      <div className="w-full min-w-0 max-w-full overflow-hidden">
         <JobTable
           jobs={jobs}
           searchTerm={searchTerm}
@@ -141,7 +141,6 @@ function Dashboard({
           darkMode={darkMode}
         />
       </div>
-
     </div>
   );
 }

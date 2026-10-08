@@ -5,7 +5,7 @@ const API_URL =
   "https://careerpilot-backend-3yo2.onrender.com/api/auth/resume";
 
 const ANALYZE_URL =
-  "http://localhost:5000/api/resume/analyze";
+  "https://careerpilot-backend-3yo2.onrender.com/api/resume/analyze";
 
 function ResumeAnalyzer({ darkMode }) {
   // =========================
@@ -14,7 +14,6 @@ function ResumeAnalyzer({ darkMode }) {
 
   const [file, setFile] = useState(null);
   const [fileName, setFileName] = useState("");
-
   const [analyzed, setAnalyzed] = useState(false);
   const [loading, setLoading] = useState(false);
   const [pageLoading, setPageLoading] = useState(true);
@@ -180,7 +179,7 @@ function ResumeAnalyzer({ darkMode }) {
       formData.append("resume", file);
 
       // =========================
-      // SEND PDF TO BACKEND
+      // SEND PDF TO PRODUCTION BACKEND
       // =========================
 
       const response = await fetch(ANALYZE_URL, {
@@ -311,7 +310,9 @@ function ResumeAnalyzer({ darkMode }) {
       setSummary("");
 
       // Reset file input
-      const fileInput = document.getElementById("resume-upload-input");
+      const fileInput = document.getElementById(
+        "resume-upload-input"
+      );
 
       if (fileInput) {
         fileInput.value = "";
@@ -446,7 +447,8 @@ function ResumeAnalyzer({ darkMode }) {
                 : "text-gray-500"
             }`}
           >
-            Upload your PDF resume and let Gemini AI analyze it.
+            Upload your PDF resume and let Gemini AI
+            analyze it.
           </p>
 
           {/* CHOOSE FILE */}
@@ -856,6 +858,7 @@ function ResumeAnalyzer({ darkMode }) {
                       <span className="mr-2 text-green-600">
                         ✓
                       </span>
+
                       {strength}
                     </li>
                   ))}
@@ -895,29 +898,32 @@ function ResumeAnalyzer({ darkMode }) {
 
             {improvements.length > 0 ? (
               <div className="mt-4 grid gap-4 md:grid-cols-2">
-                {improvements.map((improvement, index) => (
-                  <div
-                    key={index}
-                    className={`rounded-lg p-4 ${
-                      darkMode
-                        ? "bg-yellow-900/30"
-                        : "bg-yellow-50"
-                    }`}
-                  >
-                    <p
-                      className={`text-sm leading-6 ${
+                {improvements.map(
+                  (improvement, index) => (
+                    <div
+                      key={index}
+                      className={`rounded-lg p-4 ${
                         darkMode
-                          ? "text-gray-300"
-                          : "text-gray-700"
+                          ? "bg-yellow-900/30"
+                          : "bg-yellow-50"
                       }`}
                     >
-                      <span className="mr-2">
-                        💡
-                      </span>
-                      {improvement}
-                    </p>
-                  </div>
-                ))}
+                      <p
+                        className={`text-sm leading-6 ${
+                          darkMode
+                            ? "text-gray-300"
+                            : "text-gray-700"
+                        }`}
+                      >
+                        <span className="mr-2">
+                          💡
+                        </span>
+
+                        {improvement}
+                      </p>
+                    </div>
+                  )
+                )}
               </div>
             ) : (
               <p
@@ -958,9 +964,10 @@ function ResumeAnalyzer({ darkMode }) {
                   : "text-gray-600"
               }`}
             >
-              Your job readiness is estimated from the AI-generated
-              resume score. Improve the areas suggested above to
-              strengthen your applications.
+              Your job readiness is estimated from the
+              AI-generated resume score. Improve the areas
+              suggested above to strengthen your
+              applications.
             </p>
 
             <div className="mt-5">
