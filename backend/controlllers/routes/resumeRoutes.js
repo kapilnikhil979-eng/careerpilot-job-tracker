@@ -30,7 +30,7 @@ const upload = multer({
   storage: multer.memoryStorage(),
 
   limits: {
-    fileSize: 5 * 1024 * 1024, // 5 MB
+    fileSize: 5 * 1024 * 1024,
   },
 
   fileFilter: (req, file, cb) => {
@@ -83,8 +83,7 @@ router.post(
 
         return res.status(500).json({
           success: false,
-          message:
-            "GEMINI_API_KEY is missing from backend .env file.",
+          message: "GEMINI_API_KEY is missing from backend .env file.",
         });
       }
 
@@ -98,14 +97,9 @@ router.post(
 
       const pdfBase64 = req.file.buffer.toString("base64");
 
-      console.log(
-        "✅ PDF converted to Base64."
-      );
+      console.log("✅ PDF converted to Base64.");
 
-      console.log(
-        "📏 Base64 size:",
-        pdfBase64.length
-      );
+      console.log("📏 Base64 size:", pdfBase64.length);
 
       // ==================================================
       // GEMINI CLIENT
@@ -125,6 +119,7 @@ You are CareerPilot AI, a professional resume analyzer.
 Analyze the attached PDF resume carefully.
 
 The PDF may contain:
+
 - Normal text
 - Scanned text
 - Images
@@ -269,86 +264,100 @@ IMPORTANT:
 
       // ==================================================
       // SEND PDF DIRECTLY TO GEMINI
+      // WITH RETRY + FALLBACK
       // ==================================================
 
       console.log("");
       console.log("🤖 Sending PDF directly to Gemini...");
 
       let response;
-let lastError;
+      let lastError;
 
-const models = [
-  "gemini-3.5-flash-lite",
-  "gemini-3.6-flash",
-];
+      const models = [
+        "gemini-3.5-flash-lite",
+        "gemini-3.6-flash",
+      ];
 
-for (const model of models) {
-  for (let attempt = 1; attempt <= 2; attempt++) {
-    try {
-      console.log(
-        `🤖 Trying Gemini model: ${model} | Attempt: ${attempt}`
-      );
+      for (const model of models) {
+        for (let attempt = 1; attempt <= 2; attempt++) {
+          try {
+            console.log(
+              `🤖 Trying Gemini model: ${model} | Attempt: ${attempt}`
+            );
 
-      response = await ai.models.generateContent({
-        model,
+            response = await ai.models.generateContent({
+              model,
 
-        contents: [
-          {
-            text: prompt,
-          },
+              contents: [
+                {
+                  text: prompt,
+                },
 
-          {
-            inlineData: {
-              mimeType: "application/pdf",
-              data: pdfBase64,
-            },
-          },
-        ],
+                {
+                  inlineData: {
+                    mimeType: "application/pdf",
+                    data: pdfBase64,
+                  },
+                },
+              ],
 
-        config: {
-  temperature: 0.2,
-  maxOutputTokens: 1200,
-  responseMimeType: "application/json",
-},
-      });
+              config: {
+                temperature: 0.2,
+                maxOutputTokens: 1200,
 
-      console.log(`✅ Gemini success using ${model}`);
+                // IMPORTANT:
+                // Force Gemini to return valid JSON
+                responseMimeType: "application/json",
+              },
+            });
 
-      break;
-    } catch (error) {
-      lastError = error;
+            console.log(`✅ Gemini success using ${model}`);
 
-      const status = error?.status ?? error?.error?.code;
+            break;
+          } catch (error) {
+            lastError = error;
 
-      console.error(
-        `❌ Gemini error using ${model}, attempt ${attempt}:`,
-        error?.message || error
-      );
+            const status = error?.status ?? error?.error?.code;
 
-      // Only retry/fallback for temporary Gemini server overload
-      if (status !== 503) {
-        throw error;
+            console.error(
+              `❌ Gemini error using ${model}, attempt ${attempt}:`,
+              error?.message || error
+            );
+
+            // Only retry/fallback for temporary Gemini overload
+            if (status !== 503) {
+              throw error;
+            }
+
+            if (attempt < 2) {
+              console.log(
+                "⏳ Gemini temporarily busy. Retrying in 2 seconds..."
+              );
+
+              await new Promise((resolve) =>
+                setTimeout(resolve, 2000)
+              );
+            }
+          }
+        }
+
+        // If successful, don't try another model
+        if (response) {
+          break;
+        }
+
+        console.log(
+          `⚠️ ${model} unavailable. Trying next model...`
+        );
       }
 
-      if (attempt < 2) {
-        console.log("⏳ Gemini temporarily busy. Retrying in 2 seconds...");
-
-        await new Promise((resolve) => setTimeout(resolve, 2000));
+      // If all models failed
+      if (!response) {
+        throw (
+          lastError ||
+          new Error("Gemini analysis failed.")
+        );
       }
-    }
-  }
-
-  // If successful, don't try another model
-  if (response) {
-    break;
-  }
-
-  console.log(`⚠️ ${model} unavailable. Trying next model...`);
-}
-
-if (!response) {
-  throw lastError || new Error("Gemini analysis failed.");
-}
 
       // ==================================================
       // GEMINI RESPONSE
@@ -359,14 +368,11 @@ if (!response) {
       let analysisText = response.text;
 
       if (!analysisText) {
-        console.error(
-          "❌ Gemini returned empty response."
-        );
+        console.error("❌ Gemini returned empty response.");
 
         return res.status(500).json({
           success: false,
-          message:
-            "Gemini returned an empty response.",
+          message: "Gemini returned an empty response.",
         });
       }
 
@@ -403,9 +409,11 @@ if (!response) {
         console.error(
           "======================================"
         );
+
         console.error(
           "❌ GEMINI JSON PARSE ERROR"
         );
+
         console.error(
           "======================================"
         );
@@ -522,9 +530,11 @@ if (!response) {
       console.log(
         "======================================"
       );
+
       console.log(
         "✅ RESUME ANALYSIS COMPLETE"
       );
+
       console.log(
         "======================================"
       );
@@ -575,12 +585,15 @@ if (!response) {
       // ==================================================
 
       console.error("");
+
       console.error(
         "======================================"
       );
+
       console.error(
         "❌ RESUME ANALYSIS ERROR"
       );
+
       console.error(
         "======================================"
       );
