@@ -34,12 +34,12 @@ function Dashboard({
           PAGE HEADER
       ========================= */}
 
-      <div className="mb-6 sm:mb-8">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+      <div className="mb-5 sm:mb-8">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
 
-          <div>
+          <div className="min-w-0">
             <p
-              className={`mb-1 text-sm font-medium ${
+              className={`mb-1 text-xs font-medium sm:text-sm ${
                 darkMode ? "text-blue-400" : "text-blue-600"
               }`}
             >
@@ -55,7 +55,7 @@ function Dashboard({
             </h2>
 
             <p
-              className={`mt-1 text-sm sm:text-base ${
+              className={`mt-1 max-w-xl text-xs sm:text-sm sm:text-base ${
                 darkMode ? "text-gray-400" : "text-gray-500"
               }`}
             >
@@ -78,8 +78,19 @@ function Dashboard({
           STATISTICS
       ========================= */}
 
-      <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:mb-8 lg:grid-cols-4 lg:gap-6">
-
+      <div
+        className="
+          mb-5
+          grid
+          grid-cols-1
+          gap-3
+          sm:grid-cols-2
+          sm:gap-4
+          lg:mb-8
+          lg:grid-cols-4
+          lg:gap-6
+        "
+      >
         <StatCard
           title="Total Applications"
           value={totalApplications}
@@ -107,78 +118,29 @@ function Dashboard({
           icon="❌"
           darkMode={darkMode}
         />
-
       </div>
 
       {/* =========================
-          APPLICATIONS SECTION
+          APPLICATIONS
+          
+          Header is handled inside
+          JobTable.jsx
       ========================= */}
 
-      <section
-        className={`min-w-0 overflow-hidden rounded-xl border shadow-sm ${
-          darkMode
-            ? "border-gray-700 bg-gray-800"
-            : "border-gray-200 bg-white"
-        }`}
-      >
-        {/* Section Header */}
-
-        <div
-          className={`border-b px-4 py-4 sm:px-6 ${
-            darkMode ? "border-gray-700" : "border-gray-200"
-          }`}
-        >
-          <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h3
-                className={`text-lg font-semibold ${
-                  darkMode ? "text-white" : "text-gray-900"
-                }`}
-              >
-                Recent Applications
-              </h3>
-
-              <p
-                className={`text-sm ${
-                  darkMode ? "text-gray-400" : "text-gray-500"
-                }`}
-              >
-                Manage and track your job applications.
-              </p>
-            </div>
-
-            <span
-              className={`w-fit rounded-full px-3 py-1 text-xs font-medium ${
-                darkMode
-                  ? "bg-blue-900/40 text-blue-300"
-                  : "bg-blue-50 text-blue-600"
-              }`}
-            >
-              {totalApplications}{" "}
-              {totalApplications === 1
-                ? "Application"
-                : "Applications"}
-            </span>
-          </div>
-        </div>
-
-        {/* Job Table */}
-
-        <div className="min-w-0 overflow-x-auto">
-          <JobTable
-            jobs={jobs}
-            searchTerm={searchTerm}
-            setSearchTerm={setSearchTerm}
-            statusFilter={statusFilter}
-            setStatusFilter={setStatusFilter}
-            handleStatusChange={handleStatusChange}
-            handleEdit={handleEdit}
-            handleDelete={handleDelete}
-            handleAddJob={handleAddJob}
-            darkMode={darkMode}
-          />
-        </div>
-      </section>
+      <div className="min-w-0">
+        <JobTable
+          jobs={jobs}
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+          statusFilter={statusFilter}
+          setStatusFilter={setStatusFilter}
+          handleStatusChange={handleStatusChange}
+          handleEdit={handleEdit}
+          handleDelete={handleDelete}
+          handleAddJob={handleAddJob}
+          darkMode={darkMode}
+        />
+      </div>
 
     </div>
   );

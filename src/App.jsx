@@ -12,7 +12,10 @@ import Settings from "./pages/Settings.jsx";
 
 import Login from "./pages/Login.jsx";
 import Signup from "./pages/Signup.jsx";
-const API_URL = "https://careerpilot-backend-3yo2.onrender.com/api/jobs";
+
+const API_URL =
+  "https://careerpilot-backend-3yo2.onrender.com/api/jobs";
+
 function App() {
   // =========================
   // AUTHENTICATION
@@ -65,7 +68,11 @@ function App() {
   // =========================
 
   function handleProfileUpdate(updatedUser) {
-    localStorage.setItem("user", JSON.stringify(updatedUser));
+    localStorage.setItem(
+      "user",
+      JSON.stringify(updatedUser)
+    );
+
     setUser(updatedUser);
   }
 
@@ -73,13 +80,15 @@ function App() {
   // CURRENT PAGE
   // =========================
 
-  const [currentPage, setCurrentPage] = useState("Dashboard");
+  const [currentPage, setCurrentPage] =
+    useState("Dashboard");
 
   // =========================
   // MOBILE MENU
   // =========================
 
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] =
+    useState(false);
 
   // =========================
   // DARK MODE
@@ -113,7 +122,8 @@ function App() {
   // =========================
 
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("All");
+  const [statusFilter, setStatusFilter] =
+    useState("All");
 
   // =========================
   // JOBS
@@ -170,8 +180,14 @@ function App() {
 
         setJobs(formattedJobs);
       } catch (error) {
-        console.error("Error fetching jobs:", error);
-        setError("Failed to load jobs. Please try again.");
+        console.error(
+          "Error fetching jobs:",
+          error
+        );
+
+        setError(
+          "Failed to load jobs. Please try again."
+        );
       } finally {
         setLoading(false);
       }
@@ -189,7 +205,9 @@ function App() {
       formData.company.trim() === "" ||
       formData.position.trim() === ""
     ) {
-      alert("Please enter Company Name and Job Position");
+      alert(
+        "Please enter Company Name and Job Position"
+      );
       return;
     }
 
@@ -205,19 +223,27 @@ function App() {
           `${API_URL}/${editingJob._id}`,
           {
             method: "PUT",
+
             headers: {
               "Content-Type": "application/json",
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
+
+              Authorization: `Bearer ${localStorage.getItem(
+                "token"
+              )}`,
             },
+
             body: JSON.stringify(formData),
           }
         );
 
         if (!response.ok) {
-          throw new Error("Failed to update job");
+          throw new Error(
+            "Failed to update job"
+          );
         }
 
-        const updatedJob = await response.json();
+        const updatedJob =
+          await response.json();
 
         setJobs((previousJobs) =>
           previousJobs.map((job) =>
@@ -240,18 +266,26 @@ function App() {
       else {
         const response = await fetch(API_URL, {
           method: "POST",
+
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
+
+            Authorization: `Bearer ${localStorage.getItem(
+              "token"
+            )}`,
           },
+
           body: JSON.stringify(formData),
         });
 
         if (!response.ok) {
-          throw new Error("Failed to create job");
+          throw new Error(
+            "Failed to create job"
+          );
         }
 
-        const newJob = await response.json();
+        const newJob =
+          await response.json();
 
         setJobs((previousJobs) => [
           ...previousJobs,
@@ -275,8 +309,14 @@ function App() {
 
       setShowForm(false);
     } catch (error) {
-      console.error("Error saving job:", error);
-      setError("Failed to save job. Please try again.");
+      console.error(
+        "Error saving job:",
+        error
+      );
+
+      setError(
+        "Failed to save job. Please try again."
+      );
     }
   }
 
@@ -305,7 +345,9 @@ function App() {
     try {
       setError("");
 
-      const job = jobs.find((job) => job.id === id);
+      const job = jobs.find(
+        (job) => job.id === id
+      );
 
       if (!job) {
         return;
@@ -315,22 +357,35 @@ function App() {
         `${API_URL}/${job._id}`,
         {
           method: "DELETE",
+
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            Authorization: `Bearer ${localStorage.getItem(
+              "token"
+            )}`,
           },
         }
       );
 
       if (!response.ok) {
-        throw new Error("Failed to delete job");
+        throw new Error(
+          "Failed to delete job"
+        );
       }
 
       setJobs((previousJobs) =>
-        previousJobs.filter((job) => job.id !== id)
+        previousJobs.filter(
+          (job) => job.id !== id
+        )
       );
     } catch (error) {
-      console.error("Error deleting job:", error);
-      setError("Failed to delete job. Please try again.");
+      console.error(
+        "Error deleting job:",
+        error
+      );
+
+      setError(
+        "Failed to delete job. Please try again."
+      );
     }
   }
 
@@ -338,11 +393,16 @@ function App() {
   // CHANGE STATUS
   // =========================
 
-  async function handleStatusChange(id, newStatus) {
+  async function handleStatusChange(
+    id,
+    newStatus
+  ) {
     try {
       setError("");
 
-      const job = jobs.find((job) => job.id === id);
+      const job = jobs.find(
+        (job) => job.id === id
+      );
 
       if (!job) {
         return;
@@ -352,10 +412,15 @@ function App() {
         `${API_URL}/${job._id}`,
         {
           method: "PUT",
+
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
+
+            Authorization: `Bearer ${localStorage.getItem(
+              "token"
+            )}`,
           },
+
           body: JSON.stringify({
             status: newStatus,
           }),
@@ -363,10 +428,13 @@ function App() {
       );
 
       if (!response.ok) {
-        throw new Error("Failed to update status");
+        throw new Error(
+          "Failed to update status"
+        );
       }
 
-      const updatedJob = await response.json();
+      const updatedJob =
+        await response.json();
 
       setJobs((previousJobs) =>
         previousJobs.map((job) =>
@@ -379,8 +447,14 @@ function App() {
         )
       );
     } catch (error) {
-      console.error("Error changing status:", error);
-      setError("Failed to update status. Please try again.");
+      console.error(
+        "Error changing status:",
+        error
+      );
+
+      setError(
+        "Failed to update status. Please try again."
+      );
     }
   }
 
@@ -431,7 +505,8 @@ function App() {
     setCurrentPage(page);
     setShowForm(false);
 
-    // Close mobile sidebar after selecting a page
+    // Close mobile sidebar
+    // after selecting a page
     setMobileMenuOpen(false);
   }
 
@@ -448,7 +523,9 @@ function App() {
           setSearchTerm={setSearchTerm}
           statusFilter={statusFilter}
           setStatusFilter={setStatusFilter}
-          handleStatusChange={handleStatusChange}
+          handleStatusChange={
+            handleStatusChange
+          }
           handleEdit={handleEdit}
           handleDelete={handleDelete}
           handleAddJob={handleAddJob}
@@ -458,7 +535,9 @@ function App() {
       );
     }
 
-    if (currentPage === "Job Applications") {
+    if (
+      currentPage === "Job Applications"
+    ) {
       return (
         <Applications
           jobs={jobs}
@@ -466,7 +545,9 @@ function App() {
           setSearchTerm={setSearchTerm}
           statusFilter={statusFilter}
           setStatusFilter={setStatusFilter}
-          handleStatusChange={handleStatusChange}
+          handleStatusChange={
+            handleStatusChange
+          }
           handleEdit={handleEdit}
           handleDelete={handleDelete}
           handleAddJob={handleAddJob}
@@ -476,12 +557,24 @@ function App() {
       );
     }
 
-    if (currentPage === "Resume Analyzer") {
-      return <ResumeAnalyzer darkMode={darkMode} />;
+    if (
+      currentPage === "Resume Analyzer"
+    ) {
+      return (
+        <ResumeAnalyzer
+          darkMode={darkMode}
+        />
+      );
     }
 
-    if (currentPage === "Interview Prep") {
-      return <InterviewPrep darkMode={darkMode} />;
+    if (
+      currentPage === "Interview Prep"
+    ) {
+      return (
+        <InterviewPrep
+          darkMode={darkMode}
+        />
+      );
     }
 
     if (currentPage === "Settings") {
@@ -490,7 +583,9 @@ function App() {
           darkMode={darkMode}
           setDarkMode={setDarkMode}
           user={user}
-          onProfileUpdate={handleProfileUpdate}
+          onProfileUpdate={
+            handleProfileUpdate
+          }
         />
       );
     }
@@ -516,7 +611,9 @@ function App() {
     return (
       <Login
         onLogin={handleLogin}
-        onSignup={() => setShowSignup(true)}
+        onSignup={() =>
+          setShowSignup(true)
+        }
       />
     );
   }
@@ -527,7 +624,7 @@ function App() {
 
   return (
     <div
-      className={`min-h-screen ${
+      className={`min-h-screen w-full max-w-full overflow-x-hidden ${
         darkMode
           ? "bg-gray-900 text-white"
           : "bg-gray-100 text-gray-900"
@@ -540,12 +637,16 @@ function App() {
       {mobileMenuOpen && (
         <div className="fixed inset-0 z-50 md:hidden">
           {/* Dark backdrop */}
+
           <div
             className="absolute inset-0 bg-black/60"
-            onClick={() => setMobileMenuOpen(false)}
+            onClick={() =>
+              setMobileMenuOpen(false)
+            }
           />
 
           {/* Mobile Sidebar */}
+
           <div className="relative z-10 h-full w-64">
             <Sidebar
               currentPage={currentPage}
@@ -572,17 +673,22 @@ function App() {
           MAIN CONTENT
       ========================= */}
 
-      <main className="ml-0 min-w-0 p-4 sm:p-6 md:ml-64 md:p-8">
+      <main className="ml-0 w-full min-w-0 max-w-full overflow-x-hidden p-4 sm:p-6 md:ml-64 md:p-8">
 
         {/* =========================
             MOBILE TOP BAR
         ========================= */}
 
-        <div className="mb-5 flex items-center justify-between md:hidden">
+        <div className="relative mb-5 flex h-10 w-full max-w-full items-center md:hidden">
+
+          {/* Mobile Menu Button */}
+
           <button
             type="button"
-            onClick={() => setMobileMenuOpen(true)}
-            className={`flex h-10 w-10 items-center justify-center rounded-lg text-xl shadow ${
+            onClick={() =>
+              setMobileMenuOpen(true)
+            }
+            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-xl shadow ${
               darkMode
                 ? "bg-gray-800 text-white"
                 : "bg-white text-gray-900"
@@ -592,16 +698,17 @@ function App() {
             ☰
           </button>
 
+          {/* Centered Logo */}
+
           <h1
-            className={`text-lg font-bold ${
-              darkMode ? "text-white" : "text-gray-900"
+            className={`absolute left-1/2 -translate-x-1/2 whitespace-nowrap text-base font-bold sm:text-lg ${
+              darkMode
+                ? "text-white"
+                : "text-gray-900"
             }`}
           >
             CareerPilot
           </h1>
-
-          {/* Keeps title centered */}
-          <div className="w-10" />
         </div>
 
         {/* =========================
@@ -630,7 +737,7 @@ function App() {
             PAGE CONTENT
         ========================= */}
 
-        <div className="min-w-0">
+        <div className="min-w-0 max-w-full">
           {renderPage()}
         </div>
 
@@ -647,6 +754,7 @@ function App() {
           handleCancel={handleCancel}
           darkMode={darkMode}
         />
+
       </main>
     </div>
   );
