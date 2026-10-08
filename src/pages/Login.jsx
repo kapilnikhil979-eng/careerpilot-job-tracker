@@ -14,15 +14,16 @@ function Login({ onLogin, onSignup }) {
     setLoading(true);
 
     try {
+      // Local backend
       const response = await fetch(
-        "https://careerpilot-backend-3yo2.onrender.com/api/auth/login",
+        "http://localhost:5000/api/auth/login",
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            email,
+            email: email.trim(),
             password,
           }),
         }
@@ -35,13 +36,13 @@ function Login({ onLogin, onSignup }) {
         return;
       }
 
-      // Save token and open dashboard
+      // Send token and user data to App.jsx
       onLogin(data.token, data.user);
     } catch (error) {
       console.error("LOGIN ERROR:", error);
 
       setError(
-        "Unable to connect to server. Please try again."
+        "Unable to connect to server. Please make sure the backend is running."
       );
     } finally {
       setLoading(false);
@@ -49,28 +50,33 @@ function Login({ onLogin, onSignup }) {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="w-full max-w-md bg-white p-8 rounded-xl shadow-lg">
+    <div className="flex min-h-screen items-center justify-center bg-gray-100">
+      <div className="w-full max-w-md rounded-xl bg-white p-8 shadow-lg">
+        {/* TITLE */}
 
-        <h1 className="text-3xl font-bold text-center mb-2">
+        <h1 className="mb-2 text-center text-3xl font-bold">
           Job Tracker Login
         </h1>
 
-        <p className="text-gray-500 text-center mb-6">
+        <p className="mb-6 text-center text-gray-500">
           Login to continue
         </p>
 
+        {/* ERROR */}
+
         {error && (
-          <div className="mb-4 rounded-lg bg-red-100 border border-red-300 text-red-700 px-4 py-3">
+          <div className="mb-4 rounded-lg border border-red-300 bg-red-100 px-4 py-3 text-red-700">
             {error}
           </div>
         )}
 
-        <form onSubmit={handleLogin} className="space-y-5">
+        {/* LOGIN FORM */}
 
+        <form onSubmit={handleLogin} className="space-y-5">
           {/* EMAIL */}
+
           <div>
-            <label className="block mb-1 font-medium">
+            <label className="mb-1 block font-medium">
               Email
             </label>
 
@@ -79,14 +85,15 @@ function Login({ onLogin, onSignup }) {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter your email"
-              className="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full rounded-lg border px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             />
           </div>
 
           {/* PASSWORD */}
+
           <div>
-            <label className="block mb-1 font-medium">
+            <label className="mb-1 block font-medium">
               Password
             </label>
 
@@ -95,24 +102,25 @@ function Login({ onLogin, onSignup }) {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Enter your password"
-              className="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full rounded-lg border px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             />
           </div>
 
           {/* LOGIN BUTTON */}
+
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50"
+            className="w-full rounded-lg bg-blue-600 py-2 text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {loading ? "Logging in..." : "Login"}
           </button>
-
         </form>
 
         {/* SIGNUP */}
-        <div className="text-center mt-6">
+
+        <div className="mt-6 text-center">
           <p className="text-gray-600">
             Don't have an account?
           </p>
@@ -120,12 +128,11 @@ function Login({ onLogin, onSignup }) {
           <button
             type="button"
             onClick={onSignup}
-            className="text-blue-600 font-semibold hover:underline mt-1"
+            className="mt-1 font-semibold text-blue-600 hover:underline"
           >
             Create Account
           </button>
         </div>
-
       </div>
     </div>
   );

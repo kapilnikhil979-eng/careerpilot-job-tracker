@@ -1,53 +1,73 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import AIJobAnalyzer from "../components/AIJobAnalyzer.jsx";
 
+const API_URL =
+  "http://localhost:5000/api/auth/resume";
 function ResumeAnalyzer({ darkMode }) {
   // =========================
   // RESUME STATE
   // =========================
 
   const [file, setFile] = useState(null);
-
-  const [fileName, setFileName] = useState(() => {
-    return localStorage.getItem("resumeFileName") || "";
-  });
-
-  const [analyzed, setAnalyzed] = useState(() => {
-    return localStorage.getItem("resumeAnalyzed") === "true";
-  });
-
+  const [fileName, setFileName] = useState("");
+  const [analyzed, setAnalyzed] = useState(false);
   const [loading, setLoading] = useState(false);
-
+  const [pageLoading, setPageLoading] = useState(true);
   const [error, setError] = useState("");
 
   // =========================
   // ANALYSIS DATA
   // =========================
 
-  const [score, setScore] = useState(() => {
-    return Number(localStorage.getItem("resumeScore")) || 78;
-  });
+  const [score, setScore] = useState(0);
+  const [projects, setProjects] = useState(0);
+  const [skills, setSkills] = useState([]);
 
-  const [projects, setProjects] = useState(() => {
-    return Number(localStorage.getItem("resumeProjects")) || 3;
-  });
+  // =========================
+  // LOAD USER RESUME
+  // =========================
 
-  const [skills, setSkills] = useState(() => {
-    const savedSkills = localStorage.getItem("resumeSkills");
+  useEffect(() => {
+    async function loadResume() {
+      try {
+        setPageLoading(true);
+        setError("");
 
-    return savedSkills
-      ? JSON.parse(savedSkills)
-      : [
-          "HTML",
-          "CSS",
-          "JavaScript",
-          "React",
-          "Tailwind CSS",
-          "Node.js",
-          "Express.js",
-          "MongoDB",
-        ];
-  });
+        const token = localStorage.getItem("token");
+
+        if (!token) {
+          setError("Please login first.");
+          return;
+        }
+
+        const response = await fetch(API_URL, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.message || "Failed to load resume");
+        }
+
+        setFileName(data.resumeFileName || "");
+        setSkills(data.resumeSkills || []);
+        setScore(data.resumeScore || 0);
+        setProjects(data.resumeProjects || 0);
+        setAnalyzed(data.resumeAnalyzed === true);
+      } catch (error) {
+        console.error("LOAD RESUME ERROR:", error);
+        setError(error.message || "Failed to load resume");
+      } finally {
+        setPageLoading(false);
+      }
+    }
+
+    loadResume();
+  }, []);
 
   // =========================
   // HANDLE FILE CHANGE
@@ -77,26 +97,57 @@ function ResumeAnalyzer({ darkMode }) {
     setFile(selectedFile);
     setFileName(selectedFile.name);
     setAnalyzed(false);
+    setScore(0);
+    setSkills([]);
+    setProjects(0);
+  }
 
-    localStorage.setItem("resumeFileName", selectedFile.name);
-    localStorage.setItem("resumeAnalyzed", "false");
+  // =========================
+  // SAVE RESUME DATA
+  // =========================
+
+  async function saveResumeData(resumeData) {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      throw new Error("Please login first.");
+    }
+
+    const response = await fetch(API_URL, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(resumeData),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || "Failed to save resume");
+    }
+
+    return data;
   }
 
   // =========================
   // ANALYZE RESUME
   // =========================
 
-  function handleAnalyze() {
-    if (!file) {
+  async function handleAnalyze() {
+    if (!file && !fileName) {
       setError("Please select a resume first.");
       return;
     }
 
-    setError("");
-    setLoading(true);
+    try {
+      setError("");
+      setLoading(true);
 
-    // Current resume analysis simulation
-    setTimeout(() => {
+      // Current resume analysis simulation
+      await new Promise((resolve) => setTimeout(resolve, 1200));
+
       const calculatedScore = 78;
 
       const detectedSkills = [
@@ -112,41 +163,66 @@ function ResumeAnalyzer({ darkMode }) {
 
       const detectedProjects = 3;
 
+      // Update UI
       setScore(calculatedScore);
       setSkills(detectedSkills);
       setProjects(detectedProjects);
-
       setAnalyzed(true);
+
+      // Save to MongoDB for logged-in user
+      await saveResumeData({
+        resumeFileName: fileName,
+        resumeSkills: detectedSkills,
+        resumeScore: calculatedScore,
+        resumeProjects: detectedProjects,
+        resumeAnalyzed: true,
+      });
+    } catch (error) {
+      console.error("ANALYZE RESUME ERROR:", error);
+      setError(error.message || "Failed to analyze resume");
+    } finally {
       setLoading(false);
-
-      // Save analysis
-      localStorage.setItem("resumeAnalyzed", "true");
-      localStorage.setItem("resumeScore", calculatedScore);
-
-      localStorage.setItem(
-        "resumeSkills",
-        JSON.stringify(detectedSkills)
-      );
-
-      localStorage.setItem("resumeProjects", detectedProjects);
-    }, 1200);
+    }
   }
 
   // =========================
   // REMOVE RESUME
   // =========================
 
-  function handleRemoveResume() {
-    setFile(null);
-    setFileName("");
-    setAnalyzed(false);
-    setError("");
+  async function handleRemoveResume() {
+    try {
+      setError("");
 
-    localStorage.removeItem("resumeFileName");
-    localStorage.removeItem("resumeAnalyzed");
-    localStorage.removeItem("resumeScore");
-    localStorage.removeItem("resumeSkills");
-    localStorage.removeItem("resumeProjects");
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        setError("Please login first.");
+        return;
+      }
+
+      const response = await fetch(API_URL, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to delete resume");
+      }
+
+      setFile(null);
+      setFileName("");
+      setAnalyzed(false);
+      setScore(0);
+      setSkills([]);
+      setProjects(0);
+    } catch (error) {
+      console.error("DELETE RESUME ERROR:", error);
+      setError(error.message || "Failed to remove resume");
+    }
   }
 
   // =========================
@@ -167,6 +243,24 @@ function ResumeAnalyzer({ darkMode }) {
     }
 
     return "Weak";
+  }
+
+  // =========================
+  // PAGE LOADING
+  // =========================
+
+  if (pageLoading) {
+    return (
+      <div className="flex min-h-[300px] items-center justify-center">
+        <p
+          className={`text-sm ${
+            darkMode ? "text-gray-400" : "text-gray-500"
+          }`}
+        >
+          Loading your resume...
+        </p>
+      </div>
+    );
   }
 
   return (
@@ -309,9 +403,7 @@ function ResumeAnalyzer({ darkMode }) {
                       : "bg-green-600 hover:bg-green-700"
                   }`}
                 >
-                  {loading
-                    ? "Analyzing Resume..."
-                    : "Analyze Resume"}
+                  {loading ? "Analyzing Resume..." : "Analyze Resume"}
                 </button>
               )}
 
@@ -333,9 +425,7 @@ function ResumeAnalyzer({ darkMode }) {
 
       {analyzed && (
         <div className="mt-6 space-y-6">
-          {/* =========================
-              SCORE + STATS
-          ========================= */}
+          {/* SCORE + STATS */}
 
           <div
             className={`rounded-xl p-6 shadow-sm ${
@@ -354,9 +444,7 @@ function ResumeAnalyzer({ darkMode }) {
                   <div>
                     <p
                       className={`text-sm ${
-                        darkMode
-                          ? "text-gray-400"
-                          : "text-gray-500"
+                        darkMode ? "text-gray-400" : "text-gray-500"
                       }`}
                     >
                       Resume Score
@@ -390,16 +478,12 @@ function ResumeAnalyzer({ darkMode }) {
 
               <div
                 className={`rounded-xl p-5 ${
-                  darkMode
-                    ? "bg-blue-900/30"
-                    : "bg-blue-50"
+                  darkMode ? "bg-blue-900/30" : "bg-blue-50"
                 }`}
               >
                 <p
                   className={`text-sm ${
-                    darkMode
-                      ? "text-gray-400"
-                      : "text-gray-500"
+                    darkMode ? "text-gray-400" : "text-gray-500"
                   }`}
                 >
                   Resume Status
@@ -414,16 +498,12 @@ function ResumeAnalyzer({ darkMode }) {
 
               <div
                 className={`rounded-xl p-5 ${
-                  darkMode
-                    ? "bg-green-900/30"
-                    : "bg-green-50"
+                  darkMode ? "bg-green-900/30" : "bg-green-50"
                 }`}
               >
                 <p
                   className={`text-sm ${
-                    darkMode
-                      ? "text-gray-400"
-                      : "text-gray-500"
+                    darkMode ? "text-gray-400" : "text-gray-500"
                   }`}
                 >
                   Projects
@@ -435,9 +515,7 @@ function ResumeAnalyzer({ darkMode }) {
 
                 <p
                   className={`mt-1 text-xs ${
-                    darkMode
-                      ? "text-gray-400"
-                      : "text-gray-500"
+                    darkMode ? "text-gray-400" : "text-gray-500"
                   }`}
                 >
                   Projects detected
@@ -448,16 +526,12 @@ function ResumeAnalyzer({ darkMode }) {
 
               <div
                 className={`rounded-xl p-5 ${
-                  darkMode
-                    ? "bg-purple-900/30"
-                    : "bg-purple-50"
+                  darkMode ? "bg-purple-900/30" : "bg-purple-50"
                 }`}
               >
                 <p
                   className={`text-sm ${
-                    darkMode
-                      ? "text-gray-400"
-                      : "text-gray-500"
+                    darkMode ? "text-gray-400" : "text-gray-500"
                   }`}
                 >
                   Skills
@@ -469,9 +543,7 @@ function ResumeAnalyzer({ darkMode }) {
 
                 <p
                   className={`mt-1 text-xs ${
-                    darkMode
-                      ? "text-gray-400"
-                      : "text-gray-500"
+                    darkMode ? "text-gray-400" : "text-gray-500"
                   }`}
                 >
                   Skills detected
@@ -480,9 +552,7 @@ function ResumeAnalyzer({ darkMode }) {
             </div>
           </div>
 
-          {/* =========================
-              SKILLS + PROJECTS
-          ========================= */}
+          {/* SKILLS + PROJECTS */}
 
           <div className="grid gap-6 lg:grid-cols-2">
             {/* SKILLS */}
@@ -494,9 +564,7 @@ function ResumeAnalyzer({ darkMode }) {
             >
               <h3
                 className={`text-xl font-bold ${
-                  darkMode
-                    ? "text-white"
-                    : "text-gray-900"
+                  darkMode ? "text-white" : "text-gray-900"
                 }`}
               >
                 🛠️ Detected Skills
@@ -527,9 +595,7 @@ function ResumeAnalyzer({ darkMode }) {
             >
               <h3
                 className={`text-xl font-bold ${
-                  darkMode
-                    ? "text-white"
-                    : "text-gray-900"
+                  darkMode ? "text-white" : "text-gray-900"
                 }`}
               >
                 💼 Projects
@@ -540,16 +606,12 @@ function ResumeAnalyzer({ darkMode }) {
 
                 <div
                   className={`rounded-lg p-4 ${
-                    darkMode
-                      ? "bg-gray-700"
-                      : "bg-gray-50"
+                    darkMode ? "bg-gray-700" : "bg-gray-50"
                   }`}
                 >
                   <p
                     className={`font-semibold ${
-                      darkMode
-                        ? "text-white"
-                        : "text-gray-900"
+                      darkMode ? "text-white" : "text-gray-900"
                     }`}
                   >
                     CareerPilot
@@ -557,13 +619,11 @@ function ResumeAnalyzer({ darkMode }) {
 
                   <p
                     className={`mt-1 text-sm ${
-                      darkMode
-                        ? "text-gray-400"
-                        : "text-gray-600"
+                      darkMode ? "text-gray-400" : "text-gray-600"
                     }`}
                   >
-                    Full Stack career management application
-                    using React, Node.js, Express and MongoDB.
+                    Full Stack career management application using React,
+                    Node.js, Express and MongoDB.
                   </p>
                 </div>
 
@@ -571,16 +631,12 @@ function ResumeAnalyzer({ darkMode }) {
 
                 <div
                   className={`rounded-lg p-4 ${
-                    darkMode
-                      ? "bg-gray-700"
-                      : "bg-gray-50"
+                    darkMode ? "bg-gray-700" : "bg-gray-50"
                   }`}
                 >
                   <p
                     className={`font-semibold ${
-                      darkMode
-                        ? "text-white"
-                        : "text-gray-900"
+                      darkMode ? "text-white" : "text-gray-900"
                     }`}
                   >
                     Job Tracker
@@ -588,13 +644,11 @@ function ResumeAnalyzer({ darkMode }) {
 
                   <p
                     className={`mt-1 text-sm ${
-                      darkMode
-                        ? "text-gray-400"
-                        : "text-gray-600"
+                      darkMode ? "text-gray-400" : "text-gray-600"
                     }`}
                   >
-                    Job application tracking with search,
-                    filters and status management.
+                    Job application tracking with search, filters and status
+                    management.
                   </p>
                 </div>
 
@@ -602,16 +656,12 @@ function ResumeAnalyzer({ darkMode }) {
 
                 <div
                   className={`rounded-lg p-4 ${
-                    darkMode
-                      ? "bg-gray-700"
-                      : "bg-gray-50"
+                    darkMode ? "bg-gray-700" : "bg-gray-50"
                   }`}
                 >
                   <p
                     className={`font-semibold ${
-                      darkMode
-                        ? "text-white"
-                        : "text-gray-900"
+                      darkMode ? "text-white" : "text-gray-900"
                     }`}
                   >
                     Portfolio Website
@@ -619,9 +669,7 @@ function ResumeAnalyzer({ darkMode }) {
 
                   <p
                     className={`mt-1 text-sm ${
-                      darkMode
-                        ? "text-gray-400"
-                        : "text-gray-600"
+                      darkMode ? "text-gray-400" : "text-gray-600"
                     }`}
                   >
                     Responsive developer portfolio website.
@@ -631,9 +679,7 @@ function ResumeAnalyzer({ darkMode }) {
             </div>
           </div>
 
-          {/* =========================
-              IMPROVEMENT + JOB READINESS
-          ========================= */}
+          {/* IMPROVEMENT + JOB READINESS */}
 
           <div className="grid gap-6 lg:grid-cols-2">
             {/* SUGGESTIONS */}
@@ -645,9 +691,7 @@ function ResumeAnalyzer({ darkMode }) {
             >
               <h3
                 className={`text-xl font-bold ${
-                  darkMode
-                    ? "text-white"
-                    : "text-gray-900"
+                  darkMode ? "text-white" : "text-gray-900"
                 }`}
               >
                 📝 Improvement Suggestions
@@ -658,9 +702,7 @@ function ResumeAnalyzer({ darkMode }) {
 
                 <div
                   className={`rounded-lg p-4 ${
-                    darkMode
-                      ? "bg-yellow-900/30"
-                      : "bg-yellow-50"
+                    darkMode ? "bg-yellow-900/30" : "bg-yellow-50"
                   }`}
                 >
                   <p className="font-medium text-yellow-700">
@@ -669,13 +711,11 @@ function ResumeAnalyzer({ darkMode }) {
 
                   <p
                     className={`mt-1 text-sm ${
-                      darkMode
-                        ? "text-gray-400"
-                        : "text-gray-600"
+                      darkMode ? "text-gray-400" : "text-gray-600"
                     }`}
                   >
-                    Add numbers and measurable results to
-                    your project and experience descriptions.
+                    Add numbers and measurable results to your project and
+                    experience descriptions.
                   </p>
                 </div>
 
@@ -683,9 +723,7 @@ function ResumeAnalyzer({ darkMode }) {
 
                 <div
                   className={`rounded-lg p-4 ${
-                    darkMode
-                      ? "bg-blue-900/30"
-                      : "bg-blue-50"
+                    darkMode ? "bg-blue-900/30" : "bg-blue-50"
                   }`}
                 >
                   <p className="font-medium text-blue-700">
@@ -694,13 +732,11 @@ function ResumeAnalyzer({ darkMode }) {
 
                   <p
                     className={`mt-1 text-sm ${
-                      darkMode
-                        ? "text-gray-400"
-                        : "text-gray-600"
+                      darkMode ? "text-gray-400" : "text-gray-600"
                     }`}
                   >
-                    Explain what you built, which technologies
-                    you used and what problem you solved.
+                    Explain what you built, which technologies you used and
+                    what problem you solved.
                   </p>
                 </div>
 
@@ -708,9 +744,7 @@ function ResumeAnalyzer({ darkMode }) {
 
                 <div
                   className={`rounded-lg p-4 ${
-                    darkMode
-                      ? "bg-green-900/30"
-                      : "bg-green-50"
+                    darkMode ? "bg-green-900/30" : "bg-green-50"
                   }`}
                 >
                   <p className="font-medium text-green-700">
@@ -719,13 +753,11 @@ function ResumeAnalyzer({ darkMode }) {
 
                   <p
                     className={`mt-1 text-sm ${
-                      darkMode
-                        ? "text-gray-400"
-                        : "text-gray-600"
+                      darkMode ? "text-gray-400" : "text-gray-600"
                     }`}
                   >
-                    Focus your resume on skills that match
-                    the jobs you are targeting.
+                    Focus your resume on skills that match the jobs you are
+                    targeting.
                   </p>
                 </div>
               </div>
@@ -740,9 +772,7 @@ function ResumeAnalyzer({ darkMode }) {
             >
               <h3
                 className={`text-xl font-bold ${
-                  darkMode
-                    ? "text-white"
-                    : "text-gray-900"
+                  darkMode ? "text-white" : "text-gray-900"
                 }`}
               >
                 🎯 Job Readiness
@@ -750,14 +780,11 @@ function ResumeAnalyzer({ darkMode }) {
 
               <p
                 className={`mt-3 text-sm leading-6 ${
-                  darkMode
-                    ? "text-gray-400"
-                    : "text-gray-600"
+                  darkMode ? "text-gray-400" : "text-gray-600"
                 }`}
               >
-                Your resume has a solid foundation for
-                entry-level Full Stack Developer applications.
-                Continue improving projects, DSA and
+                Your resume has a solid foundation for entry-level Full Stack
+                Developer applications. Continue improving projects, DSA and
                 interview preparation.
               </p>
 
@@ -765,9 +792,7 @@ function ResumeAnalyzer({ darkMode }) {
                 <div className="flex items-center justify-between">
                   <span
                     className={`text-sm ${
-                      darkMode
-                        ? "text-gray-400"
-                        : "text-gray-500"
+                      darkMode ? "text-gray-400" : "text-gray-500"
                     }`}
                   >
                     Readiness
@@ -780,9 +805,7 @@ function ResumeAnalyzer({ darkMode }) {
 
                 <div
                   className={`mt-3 h-2.5 overflow-hidden rounded-full ${
-                    darkMode
-                      ? "bg-gray-700"
-                      : "bg-gray-200"
+                    darkMode ? "bg-gray-700" : "bg-gray-200"
                   }`}
                 >
                   <div

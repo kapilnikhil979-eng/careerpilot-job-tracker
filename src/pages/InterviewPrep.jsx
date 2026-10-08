@@ -6,112 +6,205 @@ function InterviewPrep({ darkMode }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [randomQuestion, setRandomQuestion] = useState(null);
 
-  // Progress status for questions
-  const [questionStatus, setQuestionStatus] = useState(() => {
-  const savedStatus = localStorage.getItem("interviewQuestionStatus");
+  // =====================================================
+  // GET CURRENT USER ID
+  // =====================================================
 
-  return savedStatus ? JSON.parse(savedStatus) : {};
-});
+  function getCurrentUserId() {
+    try {
+      const user = JSON.parse(
+        localStorage.getItem("user") || "null"
+      );
+
+      return (
+        user?._id ||
+        user?.id ||
+        user?.userId ||
+        "guest"
+      );
+    } catch (error) {
+      console.error("USER ID ERROR:", error);
+      return "guest";
+    }
+  }
+
+  // =====================================================
+  // USER-SPECIFIC STORAGE KEY
+  // =====================================================
+
+  function getStorageKey() {
+    const userId = getCurrentUserId();
+
+    return `interviewQuestionStatus_${userId}`;
+  }
+
+  // =====================================================
+  // PROGRESS STATUS
+  // =====================================================
+
+  const [questionStatus, setQuestionStatus] = useState(() => {
+    try {
+      const user = JSON.parse(
+        localStorage.getItem("user") || "null"
+      );
+
+      const userId =
+        user?._id ||
+        user?.id ||
+        user?.userId ||
+        "guest";
+
+      const storageKey =
+        `interviewQuestionStatus_${userId}`;
+
+      const savedStatus =
+        localStorage.getItem(storageKey);
+
+      return savedStatus
+        ? JSON.parse(savedStatus)
+        : {};
+    } catch (error) {
+      console.error(
+        "INTERVIEW PROGRESS LOAD ERROR:",
+        error
+      );
+
+      return {};
+    }
+  });
+
+  // =====================================================
+  // QUESTIONS
+  // =====================================================
 
   const questions = [
-    // =========================
-    // JavaScript - 15
-    // =========================
+    // =====================================================
+    // JAVASCRIPT - 15
+    // =====================================================
 
     {
       category: "JavaScript",
-      question: "What is the difference between var, let and const?",
+      question:
+        "What is the difference between var, let and const?",
       answer:
         "var is function-scoped, while let and const are block-scoped. let allows reassignment, but const does not allow reassignment of the variable.",
     },
+
     {
       category: "JavaScript",
-      question: "What is hoisting in JavaScript?",
+      question:
+        "What is hoisting in JavaScript?",
       answer:
         "Hoisting is JavaScript's behavior of processing declarations before executing the code. Function declarations are available before their definition, while let and const cannot be accessed before initialization.",
     },
+
     {
       category: "JavaScript",
-      question: "What is scope in JavaScript?",
+      question:
+        "What is scope in JavaScript?",
       answer:
         "Scope determines where a variable can be accessed. Common types are global scope, function scope, and block scope.",
     },
+
     {
       category: "JavaScript",
-      question: "What is a closure in JavaScript?",
+      question:
+        "What is a closure in JavaScript?",
       answer:
         "A closure happens when a function remembers and can access variables from its outer lexical scope even after the outer function has finished executing.",
     },
+
     {
       category: "JavaScript",
-      question: "What is the difference between == and ===?",
+      question:
+        "What is the difference between == and ===?",
       answer:
         "== compares values after type conversion, while === compares both value and type without automatic type conversion.",
     },
+
     {
       category: "JavaScript",
-      question: "What is the difference between null and undefined?",
+      question:
+        "What is the difference between null and undefined?",
       answer:
         "undefined usually means a value has not been assigned, while null is an intentional empty or missing value.",
     },
+
     {
       category: "JavaScript",
-      question: "What are primitive and reference types?",
+      question:
+        "What are primitive and reference types?",
       answer:
         "Primitive types include string, number, bigint, boolean, undefined, symbol, and null. Objects, arrays, and functions are reference types.",
     },
+
     {
       category: "JavaScript",
-      question: "What is a callback function?",
+      question:
+        "What is a callback function?",
       answer:
         "A callback is a function passed to another function as an argument so that it can be executed later.",
     },
+
     {
       category: "JavaScript",
-      question: "What is the difference between map(), filter() and reduce()?",
+      question:
+        "What is the difference between map(), filter() and reduce()?",
       answer:
         "map() creates a new array by transforming elements. filter() creates a new array containing elements that satisfy a condition. reduce() combines array elements into a single result.",
     },
+
     {
       category: "JavaScript",
-      question: "What is destructuring in JavaScript?",
+      question:
+        "What is destructuring in JavaScript?",
       answer:
         "Destructuring allows you to extract values from arrays or properties from objects and assign them to variables.",
     },
+
     {
       category: "JavaScript",
-      question: "What is the difference between spread and rest operators?",
+      question:
+        "What is the difference between spread and rest operators?",
       answer:
         "Both use three dots (...). Spread expands elements from an array or object, while rest collects multiple values into an array or object.",
     },
+
     {
       category: "JavaScript",
-      question: "What is a Promise?",
+      question:
+        "What is a Promise?",
       answer:
         "A Promise represents the eventual result of an asynchronous operation. It can be pending, fulfilled, or rejected.",
     },
+
     {
       category: "JavaScript",
-      question: "What is async/await?",
+      question:
+        "What is async/await?",
       answer:
         "async/await is syntax built on Promises that makes asynchronous JavaScript easier to read and write.",
     },
+
     {
       category: "JavaScript",
-      question: "What is the event loop?",
+      question:
+        "What is the event loop?",
       answer:
         "The event loop allows JavaScript to handle asynchronous operations by coordinating the call stack, task queues, and other runtime mechanisms.",
     },
+
     {
       category: "JavaScript",
-      question: "What is event bubbling and event capturing?",
+      question:
+        "What is event bubbling and event capturing?",
       answer:
         "Event capturing moves an event from the outer element toward the target, while event bubbling moves the event from the target back toward its ancestors.",
     },
 
-    // =========================
-    // React - 15
-    // =========================
+    // =====================================================
+    // REACT - 15
+    // =====================================================
 
     {
       category: "React",
@@ -119,226 +212,283 @@ function InterviewPrep({ darkMode }) {
       answer:
         "React is a JavaScript library for building user interfaces, especially component-based web applications.",
     },
+
     {
       category: "React",
-      question: "What is a React component?",
+      question:
+        "What is a React component?",
       answer:
         "A component is a reusable piece of UI that can contain its own structure, logic, and behavior.",
     },
+
     {
       category: "React",
       question: "What is JSX?",
       answer:
         "JSX is a syntax extension for JavaScript that allows developers to write HTML-like UI structures inside JavaScript code.",
     },
+
     {
       category: "React",
       question: "What are props?",
       answer:
         "Props are read-only values passed from a parent component to a child component.",
     },
+
     {
       category: "React",
       question: "What is state?",
       answer:
         "State is data managed by a component that can change over time and cause the component to re-render.",
     },
+
     {
       category: "React",
-      question: "What is the difference between props and state?",
+      question:
+        "What is the difference between props and state?",
       answer:
         "Props are passed into a component by its parent, while state is managed by the component itself.",
     },
+
     {
       category: "React",
       question: "What is useState()?",
       answer:
         "useState() is a React Hook used to create and manage state inside a functional component.",
     },
+
     {
       category: "React",
       question: "What is useEffect()?",
       answer:
         "useEffect() is a React Hook used to perform side effects such as fetching data, subscriptions, or interacting with external systems.",
     },
+
     {
       category: "React",
-      question: "What is a dependency array?",
+      question:
+        "What is a dependency array?",
       answer:
         "The dependency array in useEffect() tells React when the effect should run again based on changes to the listed values.",
     },
+
     {
       category: "React",
-      question: "What is the Virtual DOM?",
+      question:
+        "What is the Virtual DOM?",
       answer:
         "The Virtual DOM is an in-memory representation of the UI that React uses to determine efficient updates to the actual DOM.",
     },
+
     {
       category: "React",
-      question: "Why are keys used in React?",
+      question:
+        "Why are keys used in React?",
       answer:
         "Keys help React identify which list items have changed, been added, or removed.",
     },
+
     {
       category: "React",
-      question: "What is conditional rendering?",
+      question:
+        "What is conditional rendering?",
       answer:
         "Conditional rendering means displaying different UI elements depending on a condition.",
     },
+
     {
       category: "React",
-      question: "What is lifting state up?",
+      question:
+        "What is lifting state up?",
       answer:
         "Lifting state up means moving shared state to the closest common parent so multiple child components can use it.",
     },
+
     {
       category: "React",
-      question: "What is prop drilling?",
+      question:
+        "What is prop drilling?",
       answer:
         "Prop drilling is passing data through multiple components using props even when intermediate components do not need that data.",
     },
+
     {
       category: "React",
-      question: "What is Context API?",
+      question:
+        "What is Context API?",
       answer:
         "Context API allows data to be shared across components without manually passing props through every intermediate component.",
     },
 
-    // =========================
+    // =====================================================
     // HTML/CSS - 7
-    // =========================
+    // =====================================================
 
     {
       category: "HTML/CSS",
-      question: "What is semantic HTML?",
+      question:
+        "What is semantic HTML?",
       answer:
         "Semantic HTML uses meaningful elements such as header, nav, main, section, article, and footer to describe the structure and meaning of content.",
     },
+
     {
       category: "HTML/CSS",
-      question: "What is the difference between div and span?",
+      question:
+        "What is the difference between div and span?",
       answer:
         "div is generally a block-level container, while span is an inline container used for smaller pieces of content.",
     },
+
     {
       category: "HTML/CSS",
-      question: "What is the CSS Box Model?",
+      question:
+        "What is the CSS Box Model?",
       answer:
         "The CSS Box Model consists of content, padding, border, and margin.",
     },
+
     {
       category: "HTML/CSS",
-      question: "What is the difference between margin and padding?",
+      question:
+        "What is the difference between margin and padding?",
       answer:
         "Padding is the space inside an element between its content and border. Margin is the space outside the element's border.",
     },
+
     {
       category: "HTML/CSS",
       question: "What is Flexbox?",
       answer:
         "Flexbox is a CSS layout system designed to arrange and align elements efficiently in a row or column.",
     },
+
     {
       category: "HTML/CSS",
       question: "What is CSS Grid?",
       answer:
         "CSS Grid is a two-dimensional layout system that allows elements to be arranged in rows and columns.",
     },
+
     {
       category: "HTML/CSS",
-      question: "What is CSS specificity?",
+      question:
+        "What is CSS specificity?",
       answer:
         "Specificity determines which CSS rule takes priority when multiple rules target the same element.",
     },
 
-    // =========================
-    // Frontend - 3
-    // =========================
+    // =====================================================
+    // FRONTEND - 3
+    // =====================================================
 
     {
       category: "Frontend",
-      question: "What is responsive web design?",
+      question:
+        "What is responsive web design?",
       answer:
         "Responsive web design makes a website adapt to different screen sizes and devices.",
     },
+
     {
       category: "Frontend",
-      question: "What are media queries?",
+      question:
+        "What are media queries?",
       answer:
         "Media queries allow CSS rules to be applied based on conditions such as screen width, height, or device characteristics.",
     },
+
     {
       category: "Frontend",
-      question: "What is web accessibility?",
+      question:
+        "What is web accessibility?",
       answer:
         "Web accessibility means designing websites so people with different abilities can use and navigate them effectively.",
     },
 
-    // =========================
+    // =====================================================
     // DSA - 10
-    // =========================
+    // =====================================================
 
     {
       category: "DSA",
-      question: "What is time complexity?",
+      question:
+        "What is time complexity?",
       answer:
         "Time complexity describes how the running time of an algorithm grows as the input size increases.",
     },
+
     {
       category: "DSA",
-      question: "What is Big O notation?",
+      question:
+        "What is Big O notation?",
       answer:
         "Big O notation describes the upper-bound growth rate of an algorithm's time or space requirements.",
     },
+
     {
       category: "DSA",
       question: "What is an array?",
       answer:
         "An array is a data structure that stores multiple values in an ordered collection and allows access using indexes.",
     },
+
     {
       category: "DSA",
-      question: "What is the difference between an array and a linked list?",
+      question:
+        "What is the difference between an array and a linked list?",
       answer:
         "Arrays store elements in indexed positions, while linked lists store nodes connected through references. Arrays generally provide faster random access.",
     },
+
     {
       category: "DSA",
       question: "What is a stack?",
       answer:
         "A stack is a linear data structure that follows LIFO: Last In, First Out.",
     },
+
     {
       category: "DSA",
       question: "What is a queue?",
       answer:
         "A queue is a linear data structure that generally follows FIFO: First In, First Out.",
     },
+
     {
       category: "DSA",
       question: "What is hashing?",
       answer:
         "Hashing uses a hash function to map keys to locations, allowing efficient insertion, lookup, and deletion on average.",
     },
+
     {
       category: "DSA",
       question: "What is binary search?",
       answer:
         "Binary search finds an element in a sorted collection by repeatedly dividing the search range in half. Its typical time complexity is O(log n).",
     },
+
     {
       category: "DSA",
-      question: "What is the two-pointer technique?",
+      question:
+        "What is the two-pointer technique?",
       answer:
         "Two pointers use two indexes that move through a data structure according to certain conditions, often reducing the need for nested loops.",
     },
+
     {
       category: "DSA",
-      question: "What is Kadane's Algorithm?",
+      question:
+        "What is Kadane's Algorithm?",
       answer:
         "Kadane's Algorithm finds the maximum sum of a contiguous subarray in linear time, O(n).",
     },
   ];
+
+  // =====================================================
+  // CATEGORIES
+  // =====================================================
 
   const categories = [
     "All",
@@ -349,9 +499,9 @@ function InterviewPrep({ darkMode }) {
     "DSA",
   ];
 
-  // =========================
-  // Search + Category Filter
-  // =========================
+  // =====================================================
+  // SEARCH + CATEGORY FILTER
+  // =====================================================
 
   const filteredQuestions = questions.filter((item) => {
     const matchesCategory =
@@ -369,16 +519,21 @@ function InterviewPrep({ darkMode }) {
     return matchesCategory && matchesSearch;
   });
 
-  // =========================
-  // Progress
-  // =========================
+  // =====================================================
+  // PROGRESS
+  // =====================================================
 
-  const practicedCount = Object.values(questionStatus).filter(
+  const practicedCount = Object.values(
+    questionStatus
+  ).filter(
     (status) =>
-      status === "Practiced" || status === "Confident"
+      status === "Practiced" ||
+      status === "Confident"
   ).length;
 
-  const confidentCount = Object.values(questionStatus).filter(
+  const confidentCount = Object.values(
+    questionStatus
+  ).filter(
     (status) => status === "Confident"
   ).length;
 
@@ -386,25 +541,39 @@ function InterviewPrep({ darkMode }) {
     (practicedCount / questions.length) * 100
   );
 
- function handleStatusChange(question, status) {
-  setQuestionStatus((previousStatus) => {
-    const updatedStatus = {
-      ...previousStatus,
-      [question]: status,
-    };
+  // =====================================================
+  // STATUS CHANGE
+  // =====================================================
 
-    localStorage.setItem(
-      "interviewQuestionStatus",
-      JSON.stringify(updatedStatus)
-    );
+  function handleStatusChange(question, status) {
+    setQuestionStatus((previousStatus) => {
+      const updatedStatus = {
+        ...previousStatus,
+        [question]: status,
+      };
 
-    return updatedStatus;
-  });
-}
+      // Save progress for CURRENT USER only
+      try {
+        const storageKey = getStorageKey();
 
-  // =========================
-  // Random Question
-  // =========================
+        localStorage.setItem(
+          storageKey,
+          JSON.stringify(updatedStatus)
+        );
+      } catch (error) {
+        console.error(
+          "INTERVIEW PROGRESS SAVE ERROR:",
+          error
+        );
+      }
+
+      return updatedStatus;
+    });
+  }
+
+  // =====================================================
+  // RANDOM QUESTION
+  // =====================================================
 
   function handleRandomQuestion() {
     if (filteredQuestions.length === 0) {
@@ -415,9 +584,16 @@ function InterviewPrep({ darkMode }) {
       Math.random() * filteredQuestions.length
     );
 
-    setRandomQuestion(filteredQuestions[randomIndex]);
+    setRandomQuestion(
+      filteredQuestions[randomIndex]
+    );
+
     setShowAnswer(null);
   }
+
+  // =====================================================
+  // UI
+  // =====================================================
 
   return (
     <div>
@@ -425,7 +601,9 @@ function InterviewPrep({ darkMode }) {
       <div className="mb-8">
         <h2
           className={`text-3xl font-bold ${
-            darkMode ? "text-white" : "text-gray-900"
+            darkMode
+              ? "text-white"
+              : "text-gray-900"
           }`}
         >
           Interview Prep
@@ -433,11 +611,13 @@ function InterviewPrep({ darkMode }) {
 
         <p
           className={`mt-1 ${
-            darkMode ? "text-gray-400" : "text-gray-500"
+            darkMode
+              ? "text-gray-400"
+              : "text-gray-500"
           }`}
         >
-          Practice the most important Full Stack Developer
-          interview questions.
+          Practice the most important Full Stack
+          Developer interview questions.
         </p>
       </div>
 
@@ -446,12 +626,16 @@ function InterviewPrep({ darkMode }) {
         {/* Questions */}
         <div
           className={`rounded-xl p-6 shadow-sm ${
-            darkMode ? "bg-gray-800" : "bg-white"
+            darkMode
+              ? "bg-gray-800"
+              : "bg-white"
           }`}
         >
           <p
             className={`text-sm ${
-              darkMode ? "text-gray-400" : "text-gray-500"
+              darkMode
+                ? "text-gray-400"
+                : "text-gray-500"
             }`}
           >
             Questions
@@ -459,7 +643,9 @@ function InterviewPrep({ darkMode }) {
 
           <h3
             className={`mt-2 text-3xl font-bold ${
-              darkMode ? "text-white" : "text-gray-900"
+              darkMode
+                ? "text-white"
+                : "text-gray-900"
             }`}
           >
             {questions.length}
@@ -469,12 +655,16 @@ function InterviewPrep({ darkMode }) {
         {/* Practiced */}
         <div
           className={`rounded-xl p-6 shadow-sm ${
-            darkMode ? "bg-gray-800" : "bg-white"
+            darkMode
+              ? "bg-gray-800"
+              : "bg-white"
           }`}
         >
           <p
             className={`text-sm ${
-              darkMode ? "text-gray-400" : "text-gray-500"
+              darkMode
+                ? "text-gray-400"
+                : "text-gray-500"
             }`}
           >
             Practiced
@@ -488,12 +678,16 @@ function InterviewPrep({ darkMode }) {
         {/* Confident */}
         <div
           className={`rounded-xl p-6 shadow-sm ${
-            darkMode ? "bg-gray-800" : "bg-white"
+            darkMode
+              ? "bg-gray-800"
+              : "bg-white"
           }`}
         >
           <p
             className={`text-sm ${
-              darkMode ? "text-gray-400" : "text-gray-500"
+              darkMode
+                ? "text-gray-400"
+                : "text-gray-500"
             }`}
           >
             Confident
@@ -507,12 +701,16 @@ function InterviewPrep({ darkMode }) {
         {/* Progress */}
         <div
           className={`rounded-xl p-6 shadow-sm ${
-            darkMode ? "bg-gray-800" : "bg-white"
+            darkMode
+              ? "bg-gray-800"
+              : "bg-white"
           }`}
         >
           <p
             className={`text-sm ${
-              darkMode ? "text-gray-400" : "text-gray-500"
+              darkMode
+                ? "text-gray-400"
+                : "text-gray-500"
             }`}
           >
             Progress
@@ -520,7 +718,9 @@ function InterviewPrep({ darkMode }) {
 
           <h3
             className={`mt-2 text-3xl font-bold ${
-              darkMode ? "text-white" : "text-gray-900"
+              darkMode
+                ? "text-white"
+                : "text-gray-900"
             }`}
           >
             {progressPercentage}%
@@ -531,14 +731,18 @@ function InterviewPrep({ darkMode }) {
       {/* Progress Bar */}
       <div
         className={`mb-6 rounded-xl p-6 shadow-sm ${
-          darkMode ? "bg-gray-800" : "bg-white"
+          darkMode
+            ? "bg-gray-800"
+            : "bg-white"
         }`}
       >
         <div className="flex items-center justify-between">
           <div>
             <h3
               className={`text-lg font-bold ${
-                darkMode ? "text-white" : "text-gray-900"
+                darkMode
+                  ? "text-white"
+                  : "text-gray-900"
               }`}
             >
               Interview Progress
@@ -546,10 +750,13 @@ function InterviewPrep({ darkMode }) {
 
             <p
               className={`mt-1 text-sm ${
-                darkMode ? "text-gray-400" : "text-gray-500"
+                darkMode
+                  ? "text-gray-400"
+                  : "text-gray-500"
               }`}
             >
-              {practicedCount} / {questions.length} questions practiced
+              {practicedCount} / {questions.length}
+              {" "}questions practiced
             </p>
           </div>
 
@@ -560,20 +767,26 @@ function InterviewPrep({ darkMode }) {
 
         <div
           className={`mt-4 h-3 w-full overflow-hidden rounded-full ${
-            darkMode ? "bg-gray-700" : "bg-gray-200"
+            darkMode
+              ? "bg-gray-700"
+              : "bg-gray-200"
           }`}
         >
           <div
             className="h-full rounded-full bg-blue-600 transition-all duration-500"
-            style={{ width: `${progressPercentage}%` }}
-          ></div>
+            style={{
+              width: `${progressPercentage}%`,
+            }}
+          />
         </div>
       </div>
 
       {/* Search */}
       <div
         className={`mb-4 rounded-xl p-4 shadow-sm ${
-          darkMode ? "bg-gray-800" : "bg-white"
+          darkMode
+            ? "bg-gray-800"
+            : "bg-white"
         }`}
       >
         <input
@@ -595,13 +808,17 @@ function InterviewPrep({ darkMode }) {
       {/* Random Question */}
       <div
         className={`mb-6 rounded-xl p-6 shadow-sm ${
-          darkMode ? "bg-gray-800" : "bg-white"
+          darkMode
+            ? "bg-gray-800"
+            : "bg-white"
         }`}
       >
         <div className="text-center">
           <h3
             className={`text-xl font-bold ${
-              darkMode ? "text-white" : "text-gray-900"
+              darkMode
+                ? "text-white"
+                : "text-gray-900"
             }`}
           >
             Random Interview Question 🎯
@@ -609,10 +826,13 @@ function InterviewPrep({ darkMode }) {
 
           <p
             className={`mt-2 ${
-              darkMode ? "text-gray-400" : "text-gray-500"
+              darkMode
+                ? "text-gray-400"
+                : "text-gray-500"
             }`}
           >
-            Test yourself with a random interview question.
+            Test yourself with a random interview
+            question.
           </p>
 
           <button
@@ -625,7 +845,9 @@ function InterviewPrep({ darkMode }) {
           {randomQuestion && (
             <div
               className={`mt-6 rounded-lg p-5 text-left ${
-                darkMode ? "bg-gray-700" : "bg-purple-50"
+                darkMode
+                  ? "bg-gray-700"
+                  : "bg-purple-50"
               }`}
             >
               <span className="rounded-full bg-purple-600 px-3 py-1 text-sm text-white">
@@ -634,7 +856,9 @@ function InterviewPrep({ darkMode }) {
 
               <h4
                 className={`mt-4 text-lg font-semibold ${
-                  darkMode ? "text-white" : "text-gray-900"
+                  darkMode
+                    ? "text-white"
+                    : "text-gray-900"
                 }`}
               >
                 {randomQuestion.question}
@@ -643,19 +867,22 @@ function InterviewPrep({ darkMode }) {
               <button
                 onClick={() =>
                   setShowAnswer(
-                    showAnswer === randomQuestion.question
+                    showAnswer ===
+                      randomQuestion.question
                       ? null
                       : randomQuestion.question
                   )
                 }
                 className="mt-4 rounded-lg bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700"
               >
-                {showAnswer === randomQuestion.question
+                {showAnswer ===
+                randomQuestion.question
                   ? "Hide Answer"
                   : "Show Answer"}
               </button>
 
-              {showAnswer === randomQuestion.question && (
+              {showAnswer ===
+                randomQuestion.question && (
                 <div
                   className={`mt-4 rounded-lg border-l-4 border-blue-600 p-4 ${
                     darkMode
@@ -680,7 +907,9 @@ function InterviewPrep({ darkMode }) {
       {/* Categories */}
       <div
         className={`mb-6 rounded-xl p-4 shadow-sm ${
-          darkMode ? "bg-gray-800" : "bg-white"
+          darkMode
+            ? "bg-gray-800"
+            : "bg-white"
         }`}
       >
         <div className="flex flex-wrap gap-2">
@@ -710,12 +939,16 @@ function InterviewPrep({ darkMode }) {
         {filteredQuestions.length === 0 ? (
           <div
             className={`rounded-xl p-10 text-center shadow-sm ${
-              darkMode ? "bg-gray-800" : "bg-white"
+              darkMode
+                ? "bg-gray-800"
+                : "bg-white"
             }`}
           >
             <p
               className={`text-lg ${
-                darkMode ? "text-gray-400" : "text-gray-500"
+                darkMode
+                  ? "text-gray-400"
+                  : "text-gray-500"
               }`}
             >
               No questions found. 🔍
@@ -724,13 +957,16 @@ function InterviewPrep({ darkMode }) {
         ) : (
           filteredQuestions.map((item, index) => {
             const status =
-              questionStatus[item.question] || "Not Attempted";
+              questionStatus[item.question] ||
+              "Not Attempted";
 
             return (
               <div
                 key={item.question}
                 className={`rounded-xl p-6 shadow-sm transition hover:shadow-md ${
-                  darkMode ? "bg-gray-800" : "bg-white"
+                  darkMode
+                    ? "bg-gray-800"
+                    : "bg-white"
                 }`}
               >
                 {/* Category + Number */}
@@ -759,7 +995,9 @@ function InterviewPrep({ darkMode }) {
                 {/* Question */}
                 <h3
                   className={`mt-4 text-lg font-semibold ${
-                    darkMode ? "text-white" : "text-gray-900"
+                    darkMode
+                      ? "text-white"
+                      : "text-gray-900"
                   }`}
                 >
                   {item.question}

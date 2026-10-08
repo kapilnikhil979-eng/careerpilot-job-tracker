@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema(
@@ -20,6 +21,32 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
       minlength: 6,
+    },
+
+    // Resume data
+    resumeFileName: {
+      type: String,
+      default: "",
+    },
+
+    resumeSkills: {
+      type: [String],
+      default: [],
+    },
+
+    resumeScore: {
+      type: Number,
+      default: 0,
+    },
+
+    resumeProjects: {
+      type: Number,
+      default: 0,
+    },
+
+    resumeAnalyzed: {
+      type: Boolean,
+      default: false,
     },
   },
   {

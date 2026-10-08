@@ -26,7 +26,9 @@ const registerUser = async (req, res) => {
     }
 
     // Check existing user
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({
+      email: email.toLowerCase().trim(),
+    });
 
     if (existingUser) {
       return res.status(400).json({
@@ -39,8 +41,8 @@ const registerUser = async (req, res) => {
 
     // Create user
     const user = await User.create({
-      name,
-      email,
+      name: name.trim(),
+      email: email.toLowerCase().trim(),
       password: hashedPassword,
     });
 
@@ -77,7 +79,9 @@ const loginUser = async (req, res) => {
     }
 
     // Find user
-    const user = await User.findOne({ email });
+    const user = await User.findOne({
+      email: email.toLowerCase().trim(),
+    });
 
     if (!user) {
       return res.status(401).json({
@@ -196,10 +200,146 @@ const updateProfile = async (req, res) => {
 };
 
 // ======================
+// GET RESUME DATA
+// ======================
+const getResume = async (req, res) => {
+  try {
+    // Find only the logged-in user's data
+    const user = await User.findById(req.userId).select(
+      "resumeFileName resumeSkills resumeScore resumeProjects resumeAnalyzed"
+    );
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    res.status(200).json({
+      resumeFileName: user.resumeFileName,
+      resumeSkills: user.resumeSkills,
+      resumeScore: user.resumeScore,
+      resumeProjects: user.resumeProjects,
+      resumeAnalyzed: user.resumeAnalyzed,
+    });
+  } catch (error) {
+    console.error("GET RESUME ERROR:", error);
+
+    res.status(500).json({
+      message: "Failed to get resume data",
+      error: error.message,
+    });
+  }
+};
+
+// ======================
+// SAVE / UPDATE RESUME
+// ======================
+const updateResume = async (req, res) => {
+  try {
+    const {
+      resumeFileName,
+      resumeSkills,
+      resumeScore,
+      resumeProjects,
+      resumeAnalyzed,
+    } = req.body;
+
+    // Find logged-in user
+    const user = await User.findById(req.userId);
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    // Save resume information
+    user.resumeFileName = resumeFileName || "";
+
+    user.resumeSkills = Array.isArray(resumeSkills)
+      ? resumeSkills
+      : [];
+
+    user.resumeScore =
+      typeof resumeScore === "number"
+        ? resumeScore
+        : 0;
+
+    user.resumeProjects =
+      typeof resumeProjects === "number"
+        ? resumeProjects
+        : 0;
+
+    user.resumeAnalyzed = resumeAnalyzed === true;
+
+    const updatedUser = await user.save();
+
+    res.status(200).json({
+      message: "Resume data saved successfully",
+
+      resume: {
+        resumeFileName: updatedUser.resumeFileName,
+        resumeSkills: updatedUser.resumeSkills,
+        resumeScore: updatedUser.resumeScore,
+        resumeProjects: updatedUser.resumeProjects,
+        resumeAnalyzed: updatedUser.resumeAnalyzed,
+      },
+    });
+  } catch (error) {
+    console.error("UPDATE RESUME ERROR:", error);
+
+    res.status(500).json({
+      message: "Failed to save resume data",
+      error: error.message,
+    });
+  }
+};
+
+// ======================
+// DELETE RESUME DATA
+// ======================
+const deleteResume = async (req, res) => {
+  try {
+    // Find logged-in user
+    const user = await User.findById(req.userId);
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    // Clear resume data
+    user.resumeFileName = "";
+    user.resumeSkills = [];
+    user.resumeScore = 0;
+    user.resumeProjects = 0;
+    user.resumeAnalyzed = false;
+
+    await user.save();
+
+    res.status(200).json({
+      message: "Resume data deleted successfully",
+    });
+  } catch (error) {
+    console.error("DELETE RESUME ERROR:", error);
+
+    res.status(500).json({
+      message: "Failed to delete resume data",
+      error: error.message,
+    });
+  }
+};
+
+// ======================
 // EXPORT
 // ======================
 module.exports = {
   registerUser,
   loginUser,
   updateProfile,
+  getResume,
+  updateResume,
+  deleteResume,
 };

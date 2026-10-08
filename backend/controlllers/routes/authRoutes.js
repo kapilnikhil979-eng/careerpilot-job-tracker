@@ -6,6 +6,9 @@ const {
   registerUser,
   loginUser,
   updateProfile,
+  getResume,
+  updateResume,
+  deleteResume,
 } = require("../../controllers/authController");
 
 const authMiddleware = require("../../middleware/authMiddleware");
@@ -26,5 +29,20 @@ router.post("/login", loginUser);
 // UPDATE PROFILE
 // ======================
 router.put("/profile", authMiddleware, updateProfile);
+
+// ======================
+// GET RESUME
+// ======================
+router.get("/resume", authMiddleware, getResume);
+
+// ======================
+// SAVE / UPDATE RESUME
+// ======================
+router.put("/resume", authMiddleware, updateResume);
+
+// ======================
+// DELETE RESUME
+// ======================
+router.delete("/resume", authMiddleware, deleteResume);
 
 module.exports = router;
